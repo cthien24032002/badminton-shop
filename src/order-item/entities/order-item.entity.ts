@@ -20,11 +20,7 @@ export class OrderItem extends BaseEntityDtoWithSlug {
   quantity: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
-  unitPrice: number;
+  unitPrice: number; // giá hiện tại của sản phẩm 
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  generateSlug() {
-    this.slug = slugify(`item-${this.product?.id || ''}-${Date.now()}`);
-  }
+
 }

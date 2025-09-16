@@ -1,14 +1,30 @@
-import { IsNotEmpty, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsNumber, IsBoolean, IsString } from 'class-validator';
 
 export class CreateProductDto {
+
 @IsNotEmpty()
+@IsString()
+@ApiProperty({ example: 'Badminton Racket', description: 'Name of the product' })
 name: string;
+
+
 @IsOptional()
+@ApiProperty({ example: 'A high-quality badminton racket.', description: 'Description of the product'})
+@IsOptional()
+@IsString()
 description: string;
+
+@ApiProperty({ example: 150.00, description: 'Price of the product' })
+@IsNotEmpty()
 @IsNumber()
 price: number;
+
+@ApiProperty({ example: 50, description: 'Stock quantity of the product' })
 @IsNumber()
 stock: number;
+
+@ApiProperty({ example: true, description: 'Is the product featured?' })
 @IsBoolean()
 @IsOptional()
 isFeatured?: boolean;

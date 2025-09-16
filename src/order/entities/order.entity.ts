@@ -3,19 +3,7 @@ import { slugify } from 'src/common/utils/slug.util';
 import {Entity,Column,ManyToOne,OneToMany,BeforeInsert,BeforeUpdate} from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
-
-export enum OrderStatus {
-  NEW = 'NEW',
-  PROCESSING = 'PROCESSING',
-  SHIPPED = 'SHIPPED',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-}
-
-export enum PaymentMethod {
-  COD = 'COD',
-  BANK = 'BANK'
-}
+import { OrderStatus, PaymentMethod } from 'src/common/enums'; 
 
 @Entity('orders')
 export class Order extends BaseEntityDtoWithSlug {
@@ -40,9 +28,5 @@ export class Order extends BaseEntityDtoWithSlug {
   })
   orderItems: OrderItem[];
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  generateSlug() {
-    this.slug = slugify(`order-${Date.now()}`);
-  }
+
 }
