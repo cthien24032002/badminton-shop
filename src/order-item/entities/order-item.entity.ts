@@ -11,7 +11,7 @@ export class OrderItem extends BaseEntityDtoWithSlug {
   })
   order: Order;
 
-  @ManyToOne(() => Product, (product) => product.orderItems, {
+  @ManyToOne(() => Product, {
     onDelete: 'CASCADE',
   })
   product: Product;

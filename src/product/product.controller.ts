@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseIntPipe, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('product')
 export class ProductController {
@@ -15,9 +16,16 @@ export class ProductController {
   }
 
   @Get()
-  async findAll() {
-    const dataResult = await this.productService.findAll();
-    return ApiCustomResponse.success(HttpStatus.OK, dataResult,"get all products successfully"); 
+  async findAll(@Query() query: PaginationDto & { search?: string } ) {
+    const { dataResult, pagination } =
+      await this.productService.findAll(query);
+
+    return ApiCustomResponse.paginated(
+      HttpStatus.OK,
+      dataResult,
+      pagination,
+      'Lấy danh sách sản phẩm thành công',
+    );
   }
 
   @Get(':id')

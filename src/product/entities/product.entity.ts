@@ -1,7 +1,15 @@
 import { BaseEntityDtoWithSlug } from 'src/common/entities/base.entity';
 import { slugify } from 'src/common/utils/slug.util';
-import {Entity,Column,OneToMany,BeforeInsert,BeforeUpdate} from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
+  ManyToOne,
+} from 'typeorm';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
+import { Category } from 'src/categories/entities/category.entity';
 
 @Entity('products')
 export class Product extends BaseEntityDtoWithSlug {
@@ -11,6 +19,9 @@ export class Product extends BaseEntityDtoWithSlug {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @Column({ type: 'text', nullable: false })
+  image: string;
+
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
@@ -19,9 +30,12 @@ export class Product extends BaseEntityDtoWithSlug {
 
   @Column({ type: 'boolean', default: false })
   isFeatured: boolean;
-
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
-  orderItems: OrderItem[];
+  
+  @ManyToOne(() => Category, {
+    eager: true,
+    cascade:true
+  })
+  category: Category;
 
   @BeforeInsert()
   @BeforeUpdate()
