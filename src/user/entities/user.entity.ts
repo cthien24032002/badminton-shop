@@ -1,7 +1,8 @@
 import { BaseEntityDtoWithSlug } from 'src/common/entities/base.entity';
 import { slugify } from 'src/common/utils/slug.util';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity ,OneToMany} from 'typeorm';
 
+import { Order } from 'src/order/entities/order.entity';
 @Entity('users')
 export class User extends BaseEntityDtoWithSlug {
   @Column({ nullable: false })
@@ -15,6 +16,9 @@ export class User extends BaseEntityDtoWithSlug {
 
   @Column({ nullable: false, select: false })
   password: string;
+
+   @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 
   @BeforeInsert()
   @BeforeUpdate()

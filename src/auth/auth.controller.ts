@@ -27,9 +27,9 @@ export class AuthController {
     return ApiCustomResponse.success(HttpStatus.OK, dataLogin, 'Login succeed');
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Get('')
-  // test(@Request() req) {
-  //   return req.user;
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Get('')
+  test(@Request() req) {
+    return req.user;
+  }
 }
