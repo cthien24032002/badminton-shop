@@ -24,6 +24,18 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto);
   }
 
+  @Get('all')
+  async findWeb() {
+    const banners =
+      await this.categoriesService.findWeb();
+
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+       banners,
+      'Lấy danh sách sản phẩm thành công',
+    );
+  }
+
   @Get()
   async findAll(@Query() query: PaginationDto & { search?: string }) {
     const { dataResult, pagination } =
