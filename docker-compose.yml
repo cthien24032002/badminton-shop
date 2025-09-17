@@ -1,0 +1,15 @@
+# version: '3.8'
+services:
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: badminton-shop-api
+    volumes:
+      - ./uploads:/usr/src/app/uploads
+      - ./logs:/usr/src/app/logs
+    ports:
+      - '1051:1051'
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

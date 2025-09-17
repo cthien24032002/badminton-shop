@@ -22,7 +22,7 @@ async function bootstrap() {
 
   // Swagger config
   const config = new DocumentBuilder()
-    .setTitle('Store Manager API')
+    .setTitle('Badminton Shop API')
     .setDescription('API tài liệu cho hệ thống quản lý cửa hàng')
     .setVersion('1.0')
     .addBearerAuth() // nếu dùng JWT
