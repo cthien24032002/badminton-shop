@@ -1,24 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderItemDto {
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ example: 1, description: 'ID of the order' })
-  orderId: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ example: 1, description: 'ID of the product' })
+  @ApiProperty({ example: 1, description: 'ID sản phẩm' })
+  @IsNotEmpty({ message: 'id sản phẩm không được để trống' })
+  @IsNumber({}, { message: 'id sản phẩm phải là số' })
   productId: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ example: 2, description: 'Quantity of the product' })
+  @ApiProperty({ example: 2, description: 'số lượng sản phẩm' })
+  @IsNumber({}, { message: 'số lượng phải là số' })
+  @IsNotEmpty({ message: 'số lượng không được để trống' })
   quantity: number;
 
-  @IsNumber()
-  @IsNotEmpty()
-  @ApiProperty({ example: 100.000, description: 'Unit price of the product' })
+  @ApiProperty({ example: 100.000, description: 'giá sản phẩm lúc đặt hàng' })
+  @IsNotEmpty({ message: 'giá sản phẩm không được để trống' })
+  @IsNumber({}, { message: 'giá sản phẩm phải là số' })
   unitPrice: number;
+
+  @ApiProperty({ example: 'Vợt cầu lông Yonex', description: 'tên của sản phẩm lúc đặt hàng ' })
+  @IsNotEmpty({ message: 'tên sản phẩm không được để trống' })
+  @IsString({ message: 'tên sản phẩm phải là chuỗi' })
+  productName: string;
+
+  @ApiProperty({ example: 'https://image.com', description: 'hình ảnh của sản phẩm lúc đặt hàng ' })
+  @IsNotEmpty({ message: 'hình ảnh sản phẩm không được để trống' })
+  @IsString({ message: 'hình ảnh sản phẩm phải là chuỗi' })
+  image: string;
 }

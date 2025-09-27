@@ -14,7 +14,7 @@ export class User extends BaseEntityDtoWithSlug {
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: false, select: false })
+  @Column({ nullable: true, select: false })
   password: string;
 
    @OneToMany(() => Order, (order) => order.user)

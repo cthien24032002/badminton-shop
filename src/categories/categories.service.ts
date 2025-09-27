@@ -122,10 +122,20 @@ export class CategoriesService {
 
   async update({ id, name, pid }: UpdateCategoryDto) {
     const category = await this.cateRepo.findOneOrFail({ where: { id } });
+    let parent: Category | null | undefined;
+
+    if (pid !== undefined) {
+      if (pid === null) {
+        parent = null; // xóa parent
+      } else {
+        const parentCate = await this.cateRepo.findOne({ where: { id: pid } });
+        parent = parentCate ?? undefined;
+      }
+    }
 
     const categoryUpdated = this.cateRepo.merge(category, {
       name,
-      pid: pid === undefined ? undefined : pid === null ? null : { id: pid },
+      pid: parent,
     });
 
     return this.cateRepo.save(categoryUpdated);
@@ -166,7 +176,7 @@ export class CategoriesService {
       where: { id },
       relations: ['children', 'children.products', 'products'], // load products của con luôn
     });
-    console.log(category)
+    console.log(category);
     const childrenCount = category.children?.length || 0;
     const productCount = category.products?.length || 0;
 

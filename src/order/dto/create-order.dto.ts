@@ -1,59 +1,33 @@
-import {
-  IsEnum,
-  isNotEmpty,
-  IsNotEmpty,
-  IsNumber,
-  isPositive,
-  IsPositive,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
 import { OrderStatus, PaymentMethod } from 'src/common/enums';
 import { ApiProperty } from '@nestjs/swagger';
-
-class OrderItemDto {
-  @ApiProperty({ example: 1, description: 'ID ' })
-  @IsNumber()
-  @IsPositive()
-  productId: number;
-
-  @ApiProperty({ example: 2, description: 'Quantity of the product' })
-  @IsNumber()
-  @IsNotEmpty()
-  @IsPositive()
-  quantity: number;
-
-  @ApiProperty({ example: 100.0, description: 'Unit price of the product' })
-  @IsNumber()
-  @IsNotEmpty()
-  @IsPositive()
-  unitPrice: number;
-}
+import { IsEnum, IsNotEmpty, IsNumber, IsPositive, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateOrderItemDto } from 'src/order-item/dto/create-order-item.dto';
 
 export class CreateOrderDto {
-  @ApiProperty({ example: 1, description: 'ID of the user placing the order' })
-  @IsNumber()
-  @IsPositive()
+  @ApiProperty({ example: 1, description: 'ID người dùng đặt hàng' })
+  @IsNumber({}, { message: 'id người dùng phải là số' })
+  @IsPositive({ message: 'id người dùng phải là số dương' })
   userId: number;
 
   @IsEnum(OrderStatus)
   @ApiProperty({
-    example: 'NEW',
-    description: 'Status of the order',
+    example: 'Mới',
+    description: 'Trạng thái đơn hàng',
     enum: OrderStatus,
   })
   status: OrderStatus;
 
-  @IsEnum(PaymentMethod)
-  @IsNotEmpty()
-  @ApiProperty({
-    enum: PaymentMethod,
-    example: PaymentMethod.COD,
-    description: 'Phương thức thanh toán',
-  })
-  paymentMethod: PaymentMethod;
+  // @IsEnum(PaymentMethod)
+  // @IsNotEmpty({ message: 'phương thức thanh toán không được để trống' })
+  // @ApiProperty({
+  //   enum: PaymentMethod,
+  //   example: PaymentMethod.COD,
+  //   description: 'Phương thức thanh toán',
+  // })
+  // paymentMethod: PaymentMethod;
 
   @ValidateNested({ each: true })
-  @Type(() => OrderItemDto)
-  orderItems: OrderItemDto[];
+  @Type(() => CreateOrderItemDto)
+  orderItems: CreateOrderItemDto[];
 }

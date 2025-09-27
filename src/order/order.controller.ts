@@ -27,15 +27,15 @@ export class OrderController {
     return ApiCustomResponse.success(HttpStatus.OK, order,`get order with id ${id} successfully`);
   }
 
-  @Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() updateOrderDto: UpdateOrderDto) {
-    const dataResult = await this.orderService.update(id, updateOrderDto);
-    return ApiCustomResponse.success(HttpStatus.OK, dataResult, 'update order successfully');
-  }
+  // @Patch(':id')
+  // async update(@Param('id', ParseIntPipe) id: number, @Body() updateOrderDto: UpdateOrderDto) {
+  //   const dataResult = await this.orderService.update(id, updateOrderDto);
+  //   return ApiCustomResponse.success(HttpStatus.OK, dataResult, 'update order successfully');
+  // }
 
-  @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.orderService.remove(id);
-    return ApiCustomResponse.success(HttpStatus.OK, null, 'delete order successfully');
-  }
+  // @Delete(':id')
+  // async remove(@Param('id', ParseIntPipe) id: number) {
+  //   await this.orderService.remove(id);
+  //   return ApiCustomResponse.success(HttpStatus.OK, null, 'delete order successfully');
+  // }
 }

@@ -11,7 +11,7 @@ export class ProductDto extends BaseDtoWithSlug {
   unit: string;
 
   @Expose()
-  qty: number;
+  stock: number;
 
   @Expose()
   price: number;

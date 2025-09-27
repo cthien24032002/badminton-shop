@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsOptional,
@@ -27,11 +28,13 @@ export class CreateProductDto {
   description: string;
 
   @ApiProperty({ example: 150.0, description: 'Price of the product' })
+  @Type(() => Number)
   @IsNotEmpty()
   @IsNumber()
   price: number;
 
   @ApiProperty({ example: 50, description: 'Stock quantity of the product' })
+  @Type(() => Number)
   @IsInt()
   stock: number;
 
@@ -40,7 +43,7 @@ export class CreateProductDto {
   categoryId: number;
 
   @ApiProperty({ example: true, description: 'Is the product featured?' })
-  @IsBoolean()
-  @IsOptional()
-  isFeatured?: boolean;
+  @Type(() => Number)
+  @IsInt()
+  isFeatured?: number;
 }

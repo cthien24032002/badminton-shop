@@ -109,9 +109,6 @@ export class ProductsService {
 
   async findOne(id: number): Promise<ProductDto> {
     const product = await this.productRepo.findOne({ where: { id } });
-    if (!product) {
-      throw new NotFoundException(`Không tìm thấy sản phẩm với id là ${id}`);
-    }
 
     return plainToInstance(ProductDto, product, {
       excludeExtraneousValues: true, // Chỉ lấy field có @Expose
