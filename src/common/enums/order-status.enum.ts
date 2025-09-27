@@ -1,7 +1,6 @@
 export enum OrderStatus {
-  NEW = 'NEW',
-  PROCESSING = 'PROCESSING',
-  SHIPPED = 'SHIPPED',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  NEW = 'Mới',
+  SHIPPING = 'Đang giao hàng',
+  COMPLETED = 'Hoàn thành',
+  CANCELLED = 'Đã hủy',
 }

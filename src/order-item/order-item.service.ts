@@ -4,22 +4,22 @@ import { Repository } from 'typeorm';
 import { OrderItem } from './entities/order-item.entity';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
-import { Order } from '../order/entities/order.entity';
-import { Product } from '../product/entities/product.entity';
+import { OrderService } from '../order/order.service';
+import { ProductsService } from '../product/product.service';
 
 @Injectable()
 export class OrderItemService {
   constructor(
     @InjectRepository(OrderItem)private readonly orderIteamRepo : Repository<OrderItem>,
-    @InjectRepository(Order)private readonly orderRepo : Repository<Order>,
-    @InjectRepository(Product)private readonly productRepo : Repository<Product>,
+     private readonly orderService: OrderService,
+    private readonly productsService: ProductsService,
   ) {}
   async create(createOrderItemDto: CreateOrderItemDto): Promise<OrderItem> {
-    const order = await this.orderRepo.findOneBy({id: createOrderItemDto.orderId});
+    const order = await this.orderService.findOne(createOrderItemDto.orderId);
     if(!order){
       throw new NotFoundException(`Order not found`);
     }
-    const product = await this.productRepo.findOneBy({id: createOrderItemDto.productId});
+    const product = await this.productsService.findOne(createOrderItemDto.productId);
     if(!product){
       throw new NotFoundException(`Product not found`);
     }
