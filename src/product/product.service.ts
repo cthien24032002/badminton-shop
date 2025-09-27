@@ -1,35 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Like, Repository } from 'typeorm';
-import { Product } from './entities/product.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Product } from './entities/product.entity';
+import { Like, Repository } from 'typeorm';
+import { ProductDto } from './dto/product.dto';
+import { plainToInstance } from 'class-transformer';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { slugify } from 'src/common/utils/slug.util';
 import { buildPaginationMeta } from 'src/common/utils/pagination.util';
+import { slugify } from 'src/common/utils/slug.util';
+import { ImagesService } from 'src/images/images.service';
+import { QueryAllProductDto } from './dto/query-all-product.dto';
 
 @Injectable()
-export class ProductService {
+export class ProductsService {
   constructor(
-    @InjectRepository(Product) private productRepo: Repository<Product>,
+    private readonly productImageService: ImagesService,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
   ) {}
 
-  async create(dto: CreateProductDto): Promise<Product> {
-    const Product = this.productRepo.create(dto);
-    return await this.productRepo.save({
-      ...Product,
-      category: { id: dto.categoryId },
-    });
-  }
+  async findAllAdmin(query: QueryAllProductDto) {
+    const { page = 1, pageSize = 10, search, categoryId } = query;
 
-  async findAll(query: PaginationDto & { search?: string } ) {
-    const { page = 1, pageSize = 10, search } = query;
+    const where: any = {};
+
+    if (search) where.slug = Like(`%${slugify(search)}%`);
+
+    if (categoryId) where.category = { id: categoryId };
 
     const [products, total] = await this.productRepo.findAndCount({
-      where: search ? { slug: Like(`%${slugify(search)}%`) } : {},
+      where,
       skip: (page - 1) * pageSize,
       take: pageSize,
-      withDeleted: false,
+      withDeleted: true,
+    });
+
+    const dataResult = plainToInstance(ProductDto, products, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
     });
 
     const pagination = buildPaginationMeta(
@@ -39,32 +52,101 @@ export class ProductService {
       pageSize,
     );
 
-    return { dataResult:products, pagination };
+    return { dataResult, pagination };
   }
+  
+  //  SITE USER
 
-  async findOne(id: number): Promise<Product> {
-    const product = await this.productRepo.findOne({
-      where: { id },
-      relations: ['orderItems'],
+  // ProductService
+  async create(listUrl: string[], dto: CreateProductDto) {
+    const product = this.productRepo.create({
+      ...dto,
+      isFeatured: dto.isFeatured ? true : false,
+      category: { id: dto.categoryId },
     });
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+    const savedProduct = await this.productRepo.save(product);
+    // gọi ImageService để thêm ảnh
+    if (listUrl?.length > 0) {
+      await this.productImageService.createListProductImage(
+        listUrl,
+        savedProduct,
+      );
     }
-    return product;
+
+    return savedProduct;
   }
 
-  async update(
-    id: number,
-    updateProductDto: UpdateProductDto,
-  ): Promise<Product> {
-    const product = await this.findOne(id);
-    const productMerge = this.productRepo.merge(product, updateProductDto);
-    return await this.productRepo.save(productMerge);
+  async findAll(query: QueryAllProductDto) {
+    const { page = 1, pageSize = 10, search, categoryId } = query;
+
+    const where: any = {};
+
+    if (search) where.slug = Like(`%${slugify(search)}%`);
+
+    if (categoryId) where.category = { id: categoryId };
+
+    const [products, total] = await this.productRepo.findAndCount({
+      where,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      withDeleted: false,
+    });
+
+    const dataResult = plainToInstance(ProductDto, products, {
+      excludeExtraneousValues: true,
+      enableImplicitConversion: true,
+    });
+
+    const pagination = buildPaginationMeta(
+      total,
+      products.length,
+      page,
+      pageSize,
+    );
+
+    return { dataResult, pagination };
   }
 
-  async remove(id: number): Promise<void> {
-    // !: chưa xác thực thì không nên code delete
-    // const prudct  = await this.findOne(id);
-    // await this.productRepo.remove(prudct);
+  async findOne(id: number): Promise<ProductDto> {
+    const product = await this.productRepo.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException(`Không tìm thấy sản phẩm với id là ${id}`);
+    }
+
+    return plainToInstance(ProductDto, product, {
+      excludeExtraneousValues: true, // Chỉ lấy field có @Expose
+    });
+  }
+
+  async update(updateProductDto: UpdateProductDto) {
+    const { id, ...updateData } = updateProductDto;
+    
+    const product = await this.productRepo.findOneOrFail({ where: { id } });
+
+    // merge data mới vào product cũ
+    const updatedProduct = this.productRepo.merge(product, {
+      ...updateData,
+      category: { id: updateData.categoryId },
+    });
+
+    // lưu lại DB
+    await this.productRepo.save(updatedProduct);
+
+    return updatedProduct;
+  }
+
+  softRemove(id: number) {
+    // const product = this.productRepo.create({ id });
+    // return this.productRepo.remove(product);
+    return this.productRepo.softDelete(id);
+  }
+
+  async remove(id: number) {
+    const product = await this.productRepo.findOneOrFail({ where: { id } });
+    if (!product?.deletedAt)
+      throw new BadRequestException(
+        'Vui lòng tắt hoạt động sản phẩm mới có thể xoá',
+      );
+    return this.productRepo.remove(product);
   }
 }

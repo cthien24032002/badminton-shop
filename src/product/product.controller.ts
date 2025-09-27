@@ -1,24 +1,98 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseIntPipe, Query } from '@nestjs/common';
-import { ProductService } from './product.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  Query,
+  ParseIntPipe,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
+  LoggerService,
+  Inject,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
+import { Product } from './entities/product.entity';
+import { ProductDto } from './dto/product.dto';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { storageConfig } from 'src/common/config/upload.config';
+import * as fs from 'fs';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
+import { QueryAllProductDto } from './dto/query-all-product.dto';
+import { ProductsService } from './product.service';
 
 @Controller('product')
-export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+export class ProductsController {
+  constructor(
+    private readonly productsService: ProductsService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
+
+  @Get('/admin/')
+  async findAllAdmin(@Query() query: QueryAllProductDto) {
+    const { dataResult, pagination } =
+      await this.productsService.findAllAdmin(query);
+
+    return ApiCustomResponse.paginated(
+      HttpStatus.OK,
+      dataResult,
+      pagination,
+      'Lấy danh sách sản phẩm thành công',
+    );
+  }
 
   @Post()
-  async create(@Body() createProductDto: CreateProductDto) {
-   const dataResult = await this.productService.create(createProductDto);
-    return ApiCustomResponse.success(HttpStatus.CREATED, dataResult,"create product successfully");
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('files', 3, { storage: storageConfig('product') }),
+  )
+  async create(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ): Promise<ApiCustomResponse<Product | string>> {
+    if (files.length <= 0)
+      throw new BadRequestException('Sản phẩm phải có ít nhất 1 ảnh');
+    try {
+      const listUrl: string[] = files.map((file) => file.path);
+      const product = await this.productsService.create(
+        listUrl,
+        createProductDto,
+      );
+
+      return ApiCustomResponse.success(
+        HttpStatus.CREATED,
+        product,
+        'Tạo sản phẩm thành công',
+      );
+    } catch (error) {
+      for (const file of files) {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (e) {
+          this.logger.error({
+            message: 'Không thể xóa file',
+            file: file.path,
+            e,
+          });
+        }
+      }
+      throw error;
+    }
   }
 
   @Get()
-  async findAll(@Query() query: PaginationDto & { search?: string } ) {
+  async findAll(@Query() query: QueryAllProductDto) {
     const { dataResult, pagination } =
-      await this.productService.findAll(query);
+      await this.productsService.findAll(query);
 
     return ApiCustomResponse.paginated(
       HttpStatus.OK,
@@ -29,19 +103,45 @@ export class ProductController {
   }
 
   @Get(':id')
-  async findOne(@Param('id',ParseIntPipe) id: number) {
-    const dataResult = await this.productService.findOne(id);
-    return ApiCustomResponse.success(HttpStatus.OK, dataResult,`get product with id ${id} successfully`);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ApiCustomResponse<ProductDto>> {
+    const product = await this.productsService.findOne(id);
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      product,
+      'Lấy chi tiết sản phẩm thành công',
+    );
   }
-@Patch(':id')
-  async update(@Param('id', ParseIntPipe) id: number, @Body() updateProductDto: UpdateProductDto) {
-    const dataResult = await this.productService.update(id, updateProductDto);
-    return ApiCustomResponse.success(HttpStatus.OK, dataResult, 'update product successfully');
+
+  @Patch()
+  async update(@Body() updateProductDto: UpdateProductDto) {
+    const product = await this.productsService.update(updateProductDto);
+
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      product,
+      'Chỉnh sửa sản phẩm thành công',
+    );
+  }
+
+  @Delete('soft-delete/:id')
+  async softRemove(@Param('id', ParseIntPipe) id: number) {
+    const dataDelete = await this.productsService.softRemove(id);
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      dataDelete,
+      'Xoá mềm sản phẩm thành công',
+    );
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.productService.remove(id);
-    return ApiCustomResponse.success(HttpStatus.OK, null, 'delete product successfully');
+    const dataDelete = await this.productsService.remove(id);
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      dataDelete,
+      'Xoá sản phẩm thành công',
+    );
   }
 }

@@ -11,9 +11,19 @@ import { CategoriesModule } from './categories/categories.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemModule } from './order-item/order-item.module';
+import { BannersModule } from './banners/banners.module';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './common/config/logger.config';
+import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '../../', 'uploads'), // thư mục chứa ảnh
+      serveRoot: '/uploads', // đường dẫn public
+    }),
     TypeOrmModule.forRoot(dataSourceOptions),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -23,9 +33,12 @@ import { OrderItemModule } from './order-item/order-item.module';
     AuthModule,
     AdminModule,
     CategoriesModule,
+    WinstonModule.forRoot(winstonConfig),
     ProductModule,
     OrderModule,
     OrderItemModule,
+    BannersModule,
+    ImagesModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,12 +4,25 @@ import { getEnv } from './common/config/env.config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './common/config/logger.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // 1. Tạo logger instance trước
+  const logger = WinstonModule.createLogger(winstonConfig);
 
- app.useGlobalFilters(new AllExceptionsFilter());
- 
+  const app = await NestFactory.create(AppModule, {
+    logger,
+  });
+
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
+  app.useGlobalFilters(new AllExceptionsFilter());
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // ⚠️ Xoá field không có trong DTO

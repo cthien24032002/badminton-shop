@@ -7,9 +7,12 @@ import {
   BeforeInsert,
   BeforeUpdate,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { Category } from 'src/categories/entities/category.entity';
+import { ProductImage } from 'src/images/entities/product-image.entity';
+import { Admin } from 'src/admin/entities/admin.entity';
 
 @Entity('products')
 export class Product extends BaseEntityDtoWithSlug {
@@ -19,15 +22,17 @@ export class Product extends BaseEntityDtoWithSlug {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'text', nullable: false })
-  image: string;
+  @OneToMany(() => ProductImage, (image) => image.product, {
+    cascade: true,
+    eager: true,
+  })
+  images: ProductImage[];
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   price: number;
 
   @Column({ type: 'int', default: 0 })
   stock: number;
-
   @Column({ type: 'boolean', default: false })
   isFeatured: boolean;
   
@@ -36,6 +41,14 @@ export class Product extends BaseEntityDtoWithSlug {
     cascade:true
   })
   category: Category;
+
+  // @ManyToOne(() => Admin, { nullable: false, eager: true })
+  // @JoinColumn({ name: 'createdBy' })
+  // createdBy: Admin;
+
+  // @ManyToOne(() => Admin, { nullable: true, eager: true })
+  // @JoinColumn({ name: 'updatedBy' })
+  // updatedBy: Admin;
 
   @BeforeInsert()
   @BeforeUpdate()
