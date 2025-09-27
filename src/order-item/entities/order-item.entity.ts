@@ -21,6 +21,7 @@ export class OrderItem extends BaseEntityDtoWithSlug {
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: false })
   unitPrice: number; // giá hiện tại của sản phẩm 
-
-
+  
+  @Column({ type : 'text',nullable: false })
+  productName: string;
 }
