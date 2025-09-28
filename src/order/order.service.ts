@@ -55,7 +55,7 @@ export class OrderService {
     const { page = 1, pageSize = 10 } = query;
 
     const where: any = {};
-    if (query.orderStatus !== undefined) where.orderStatus = query.orderStatus;
+    if (query.orderStatus !== undefined) where.status = query.orderStatus;
     // if (query.phone) where.createdBy = { phone: query.phone };
 
     const [orders, total] = await this.orderRepo.findAndCount({
@@ -94,7 +94,7 @@ export class OrderService {
     const { page = 1, pageSize = 10 } = query;
 
     const where: any = {};
-    if (query.orderStatus !== undefined) where.orderStatus = query.orderStatus;
+    if (query.orderStatus !== undefined) where.status  = query.orderStatus;
     // if (query.phone) where.createdBy = { phone: query.phone };
 
     const [orders, total] = await this.orderRepo.findAndCount({
