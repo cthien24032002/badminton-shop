@@ -1,11 +1,11 @@
-import { BaseEntityDtoWithSlug } from 'src/common/entities/base.entity';
+import { BaseEntityDto } from 'src/common/entities/base.entity';
 import { slugify } from 'src/common/utils/slug.util';
 import { Entity, Column, ManyToOne, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Order } from 'src/order/entities/order.entity';
 import { Product } from 'src/product/entities/product.entity';
 
 @Entity('order_items')
-export class OrderItem extends BaseEntityDtoWithSlug {
+export class OrderItem extends BaseEntityDto{
   @ManyToOne(() => Order, {
     onDelete: 'CASCADE',
   })

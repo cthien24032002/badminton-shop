@@ -1,5 +1,4 @@
-import { BaseEntityDtoWithSlug } from 'src/common/entities/base.entity';
-import { slugify } from 'src/common/utils/slug.util';
+import { BaseEntityDto } from 'src/common/entities/base.entity';
 import {
   Entity,
   Column,
@@ -13,7 +12,7 @@ import { OrderItem } from 'src/order-item/entities/order-item.entity';
 import { OrderStatus, PaymentMethod } from 'src/common/enums';
 
 @Entity('orders')
-export class Order extends BaseEntityDtoWithSlug {
+export class Order extends BaseEntityDto {
   @ManyToOne(() => User, { nullable: true})
   user: User | null;
 
@@ -26,6 +25,9 @@ export class Order extends BaseEntityDtoWithSlug {
 
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   totalAmount: number;
+
+  @Column({ type: 'nvarchar',length:500,nullable:false})
+  address: string;
 
   // @Column({ type: 'enum', enum: PaymentMethod })
   // paymentMethod: PaymentMethod;

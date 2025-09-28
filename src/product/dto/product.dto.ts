@@ -17,7 +17,7 @@ export class ProductDto extends BaseDtoWithSlug {
   price: number;
 
   @Expose()
-  isHot: boolean;
+  isFeatured: boolean;
 
   @Expose()
   motorcycleBrand: string;

@@ -20,6 +20,7 @@ export class UserSeed {
         phone: '0703918883',
         isActive: true,
         name: 'User A',
+        address: '182/3 Thanh Xuan Hà Nội'
       },
       {
         phone: '0703918884',

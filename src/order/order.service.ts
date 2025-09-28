@@ -14,35 +14,34 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    
-    if (!createOrderDto.orderItems || createOrderDto.orderItems.length === 0) {
+    const { orderItems,userId, ...dto } = createOrderDto;
+    if (!orderItems || orderItems.length === 0) {
       throw new NotFoundException(`Đơn hàng ít nhất phải có 1 sản phẩm`);
     }
 
-    const totalAmount = createOrderDto.orderItems.reduce(
+    const totalAmount = orderItems.reduce(
       (acc, cur) => acc + cur.quantity * cur.unitPrice,
       0,
     );
 
-
     const order = this.orderRepo.create({
-      user: { id: createOrderDto.userId },
-      status: createOrderDto.status,
+      user: { id: userId },
       totalAmount,
+      ...dto
     });
 
     const createdOrder = await this.orderRepo.save(order);
- 
+
     //  Tạo OrderItems song song bằng Promise.all
     await Promise.all(
-      createOrderDto.orderItems.map((itemDto) =>
+      orderItems.map((itemDto) =>
         this.orderItemService.create(itemDto, createdOrder.id),
       ),
     );
 
     // * có thể dùng thay cho đoạn trên nếu chưa quen ngôn ngữ
 
-    // for (const itemDto of createOrderDto.orderItems) {
+    // for (const itemDto of orderItems) {
     //   await this.orderItemService.create(itemDto, createdOrder.id);
     // }
 

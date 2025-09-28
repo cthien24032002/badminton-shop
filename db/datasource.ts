@@ -11,7 +11,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: getEnv('DB_PASSWORD'),
   database: getEnv('DB_DATABASE'),
   entities: ['dist/**/*.entity{.ts,.js}'],
-  synchronize: true,
+  // synchronize: true,
 };
 
 const dataSource = new DataSource(dataSourceOptions);
