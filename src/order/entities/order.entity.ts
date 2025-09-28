@@ -13,7 +13,7 @@ import { OrderStatus, PaymentMethod } from 'src/common/enums';
 
 @Entity('orders')
 export class Order extends BaseEntityDto {
-  @ManyToOne(() => User, { nullable: true})
+  @ManyToOne(() => User, { nullable: true,eager:true })
   user: User | null;
 
   @Column({
