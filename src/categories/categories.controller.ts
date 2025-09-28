@@ -75,9 +75,9 @@ export class CategoriesController {
     );
   }
 
-  @Patch(':id')
-  update(@Body() caregory: UpdateCategoryDto) {
-
+  @Patch('/:id')
+  async update(@Body() caregory: UpdateCategoryDto) {
+    const categoryUpdate =await  this.categoriesService.update(caregory);
      return ApiCustomResponse.success(
       HttpStatus.NO_CONTENT,
       caregory,
