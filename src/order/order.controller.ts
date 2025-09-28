@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus,ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  ParseIntPipe,
+  Query,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
-
+import { QueryFindOrder } from './dto/query-order.dto';
 
 @Controller('order')
 export class OrderController {
@@ -11,20 +22,48 @@ export class OrderController {
 
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
-    const dataResult = await this.orderService.create(createOrderDto); 
-    return ApiCustomResponse.success(HttpStatus.CREATED, dataResult,"create order successfully");
+    const dataResult = await this.orderService.create(createOrderDto);
+    return ApiCustomResponse.success(
+      HttpStatus.CREATED,
+      dataResult,
+      'create order successfully',
+    );
   }
-  
+
+  @Get('/admin')
+  async findAllForAdmin(@Query() query: QueryFindOrder) {
+    const { dataResult, pagination } =
+      await this.orderService.findAllForAdmin(query);
+
+    return ApiCustomResponse.paginated(
+      HttpStatus.OK,
+      dataResult,
+      pagination,
+      'Lấy danh sách order thành công',
+    );
+  }
+
   @Get()
-  async findAll() {
-    const dataResult =await this.orderService.findAll();
-    return ApiCustomResponse.success(HttpStatus.OK, dataResult,"get all orders successfully");
+  async findAllForUser(@Query() query: QueryFindOrder) {
+    const { dataResult, pagination } =
+      await this.orderService.findAllForUser(query);
+
+    return ApiCustomResponse.paginated(
+      HttpStatus.OK,
+      dataResult,
+      pagination,
+      'Lấy danh sách order thành công',
+    );
   }
 
   @Get(':id')
-  async findOne(@Param('id',ParseIntPipe) id: number) {
-    const order =  await this.orderService.findOne(id);
-    return ApiCustomResponse.success(HttpStatus.OK, order,`get order with id ${id} successfully`);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const order = await this.orderService.findOne(id);
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      order,
+      `get order with id ${id} successfully`,
+    );
   }
 
   // @Patch(':id')

@@ -5,6 +5,9 @@ import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderItemService } from 'src/order-item/order-item.service';
+import { QueryFindOrder } from './dto/query-order.dto';
+import { plainToInstance } from 'class-transformer';
+import { buildPaginationMeta } from 'src/common/utils/pagination.util';
 
 @Injectable()
 export class OrderService {
@@ -48,10 +51,32 @@ export class OrderService {
     return createdOrder;
   }
 
-  async findAll(): Promise<Order[]> {
-    return await this.orderRepo.find({
-      relations: ['user', 'orderItems'],
+  async findAllForUser(query: QueryFindOrder) {
+    const { page = 1, pageSize = 10 } = query;
+
+    const where: any = {};
+    if (query.orderStatus !== undefined) where.orderStatus = query.orderStatus;
+    // if (query.phone) where.createdBy = { phone: query.phone };
+
+    const [orders, total] = await this.orderRepo.findAndCount({
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      where,
     });
+
+    // const dataResult = plainToInstance(OrderDto, orders, {
+    //   excludeExtraneousValues: true,
+    //   enableImplicitConversion: true,
+    // });
+
+    const pagination = buildPaginationMeta(
+      total,
+      orders.length,
+      page,
+      pageSize,
+    );
+
+    return { dataResult:orders, pagination };
   }
 
   async findOne(id: number): Promise<Order> {
@@ -63,6 +88,30 @@ export class OrderService {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
     return order;
+  }
+
+  async findAllForAdmin(query: QueryFindOrder) {
+    const { page = 1, pageSize = 10 } = query;
+
+    const where: any = {};
+    if (query.orderStatus !== undefined) where.orderStatus = query.orderStatus;
+    // if (query.phone) where.createdBy = { phone: query.phone };
+
+    const [orders, total] = await this.orderRepo.findAndCount({
+      withDeleted: true,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      where,
+    });
+
+    const pagination = buildPaginationMeta(
+      total,
+      orders.length,
+      page,
+      pageSize,
+    );
+
+    return { dataResult:orders, pagination };
   }
 
   // async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {

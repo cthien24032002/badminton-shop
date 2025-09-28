@@ -7,5 +7,7 @@ export class PublicUserDto extends PickType(UserDto, [
   'slug',
   'email',
   'phone',
+  'createdAt',
+  'address',
   'isActive'
 ]) {}

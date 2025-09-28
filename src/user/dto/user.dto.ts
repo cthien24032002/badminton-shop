@@ -8,4 +8,6 @@ export class UserDto extends BaseDtoWithSlug {
   phone: string;
   @Expose()
   email: string;
+  @Expose()
+  address: string;
 }
