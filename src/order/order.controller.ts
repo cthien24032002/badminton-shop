@@ -12,9 +12,9 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 import { QueryFindOrder } from './dto/query-order.dto';
+import { UpdateStatusOrderDto } from './dto/update-status.dto';
 
 @Controller('order')
 export class OrderController {
@@ -26,7 +26,7 @@ export class OrderController {
     return ApiCustomResponse.success(
       HttpStatus.CREATED,
       dataResult,
-      'create order successfully',
+      'Tạo đơn hàng thành công',
     );
   }
 
@@ -39,7 +39,7 @@ export class OrderController {
       HttpStatus.OK,
       dataResult,
       pagination,
-      'Lấy danh sách order thành công',
+      'Lấy danh sách đơn hàng thành công',
     );
   }
 
@@ -52,7 +52,7 @@ export class OrderController {
       HttpStatus.OK,
       dataResult,
       pagination,
-      'Lấy danh sách order thành công',
+      'Lấy danh sách đơn hàng thành công',
     );
   }
 
@@ -62,19 +62,17 @@ export class OrderController {
     return ApiCustomResponse.success(
       HttpStatus.OK,
       order,
-      `get order with id ${id} successfully`,
+      `Lấy thông tin đơn hàng thành công`,
     );
   }
 
-  // @Patch(':id')
-  // async update(@Param('id', ParseIntPipe) id: number, @Body() updateOrderDto: UpdateOrderDto) {
-  //   const dataResult = await this.orderService.update(id, updateOrderDto);
-  //   return ApiCustomResponse.success(HttpStatus.OK, dataResult, 'update order successfully');
-  // }
-
-  // @Delete(':id')
-  // async remove(@Param('id', ParseIntPipe) id: number) {
-  //   await this.orderService.remove(id);
-  //   return ApiCustomResponse.success(HttpStatus.OK, null, 'delete order successfully');
-  // }
+  @Patch('/status/:id')
+  async updateStatus(@Param('id', ParseIntPipe) id: number,updateStatusDto: UpdateStatusOrderDto) {
+    const order = await this.orderService.updateStatus(id,updateStatusDto);
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      order,
+      `cập nhật trạng thái đơn hàng thành công`,
+    );
+  }
 }

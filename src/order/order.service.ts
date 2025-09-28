@@ -3,11 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrderItemService } from 'src/order-item/order-item.service';
 import { QueryFindOrder } from './dto/query-order.dto';
-import { plainToInstance } from 'class-transformer';
 import { buildPaginationMeta } from 'src/common/utils/pagination.util';
+import { UpdateStatusOrderDto } from './dto/update-status.dto';
 
 @Injectable()
 export class OrderService {
@@ -114,14 +113,10 @@ export class OrderService {
     return { dataResult:orders, pagination };
   }
 
-  // async update(id: number, updateOrderDto: UpdateOrderDto): Promise<Order> {
-  //   const order = await this.findOne(id);
-  //   Object.assign(order, updateOrderDto);
-  //   return await this.orderRepo.save(order);
-  // }
+  async updateStatus(id: number, updateStatusDto: UpdateStatusOrderDto): Promise<Order> {
+    
+    return await this.orderRepo.save({id,status:updateStatusDto.status});
+  }
 
-  // async remove(id: number): Promise<void> {
-  //   const order = await this.findOne(id);
-  //   await this.orderRepo.remove(order);
-  // }
+
 }
