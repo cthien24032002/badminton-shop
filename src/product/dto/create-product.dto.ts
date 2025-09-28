@@ -39,7 +39,7 @@ export class CreateProductDto {
   stock: number;
 
   @ApiProperty({ example: 1, description: 'Stock quantity of the product' })
-  
+  @Type(() => Number)
   @IsInt()
   categoryId: number;
 
