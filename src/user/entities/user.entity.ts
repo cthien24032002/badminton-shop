@@ -12,10 +12,7 @@ export class User extends BaseEntityDtoWithSlug {
   phone: string;
 
   @Column({ nullable: true })
-  email: string;
-
-  @Column({ nullable: true, select: false })
-  password: string;
+  email?: string;
 
   @Column({ type: 'nvarchar',length:500,nullable:true})
   address: string | null;

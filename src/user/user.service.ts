@@ -19,7 +19,6 @@ import {
 import { buildPaginationMeta } from 'src/common/utils/pagination.util';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 import { QueryFindUser } from './dto/req/find-user.dto';
-import { NumberIdDto } from 'src/common/dto/id-number.dto';
 
 @Injectable()
 export class UserService {
@@ -40,10 +39,7 @@ export class UserService {
     // ✅ 2. Tạo user mới
     const user = this.userRepo.create(createUserDto);
 
-    // ✅ 3. Hash mật khẩu
-    user.password = await hashPassword(createUserDto.password);
-
-    // ✅ 4. Lưu vào DB
+    // ✅ 3. Lưu vào DB
     return await this.userRepo.save(user);
   }
 
@@ -121,10 +117,7 @@ export class UserService {
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    console.log(id);
-    console.log(updateUserDto);
-
-    return `This action updates a  user`;
+    return this.userRepo.update(id, updateUserDto);
   }
 
   remove(id: number) {

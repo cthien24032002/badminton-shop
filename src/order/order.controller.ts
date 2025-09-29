@@ -67,7 +67,7 @@ export class OrderController {
   }
 
   @Patch('/status/:id')
-  async updateStatus(@Param('id', ParseIntPipe) id: number,updateStatusDto: UpdateStatusOrderDto) {
+  async updateStatus(@Param('id', ParseIntPipe) id: number, @Body() updateStatusDto: UpdateStatusOrderDto) {
     const order = await this.orderService.updateStatus(id,updateStatusDto);
     return ApiCustomResponse.success(
       HttpStatus.OK,

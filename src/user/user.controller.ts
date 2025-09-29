@@ -9,6 +9,7 @@ import {
   Query,
   HttpStatus,
   ParseIntPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/req/create-user.dto';
@@ -17,6 +18,7 @@ import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 import { QueryFindUser } from './dto/req/find-user.dto';
 import { NumberIdDto } from 'src/common/dto/id-number.dto';
+import { Not } from 'typeorm';
 
 @Controller('user')
 export class UserController {
@@ -62,15 +64,24 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.update(id,updateUserDto);
+    const update = await this.userService.update(id, updateUserDto);
+    if (update.affected === 0)
+      throw new BadRequestException(
+        `Người dùng không tồn tại hoặc không thể cập nhật`,
+      );
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      undefined,
+      'Cập nhật người dùng thành công',
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id',ParseIntPipe) id: number) {
-    return this.userService.remove(id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id',ParseIntPipe) id: number) {
+  //   return this.userService.remove(id);
+  // }
 }

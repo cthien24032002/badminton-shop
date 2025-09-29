@@ -1,6 +1,6 @@
 // src/user/dto/create-user.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'Nguyễn Văn A', description: 'Tên người dùng'})
@@ -14,12 +14,8 @@ export class CreateUserDto {
   phone: string;
 
   @ApiProperty({ example: 'nguyenvana@gmail.com', description: 'Tên người dùng'})
+  @IsOptional()
   @IsEmail({},{message:'Sai định dạng email'})
-  email: string;
+  email?: string;
 
-  @ApiProperty({ example: '123456', description: 'Từ 6 ký tự đến 32 ký tự'})
-  @IsNotEmpty({message:'Mật khẩu không được rỗng'})
-  @MinLength(6,{message:'Mật khẩu ít nhất phải 6 ký tự'})
-  @MaxLength(32,{message:'Mật khẩu ít hơn 32 ký tự'})
-  password: string;
 }
