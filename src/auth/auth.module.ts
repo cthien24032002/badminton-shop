@@ -6,10 +6,12 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from 'src/common/constants/jwt';
 import { JwtStrategy } from 'src/common/auth/local.strategy';
+import { AdminModule } from 'src/admin/admin.module';
 
 @Module({
   imports: [
     UserModule,
+    AdminModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,

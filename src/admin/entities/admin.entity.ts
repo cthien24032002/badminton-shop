@@ -15,6 +15,6 @@ export class Admin extends BaseEntityDto {
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: false, select: false })
+  @Column({ nullable: false })
   password: string;
 }

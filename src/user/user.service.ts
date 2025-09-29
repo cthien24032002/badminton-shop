@@ -77,12 +77,10 @@ export class UserService {
 
   // Sử dụng cho auth
   async findOnePhone(phone: string) {
-    const user = await this.userRepo
-      .createQueryBuilder('user')
-      .addSelect('user.password') // thêm trường password dù đang bị select: false
-      .where('user.phone = :phone', { phone })
-      .getOne();
-
+    const user = await this.userRepo.findOne({
+      where: { phone },
+      // select: ['id', 'phone', 'name', 'isActive'],
+    });
     if (!user) {
       throw new NotFoundException(`User with phone ${phone} not found`);
     }
