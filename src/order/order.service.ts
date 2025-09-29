@@ -92,9 +92,26 @@ export class OrderService {
   async findAllForAdmin(query: QueryFindOrder) {
     const { page = 1, pageSize = 10 } = query;
 
-    const where: any = {};
-    if (query.orderStatus !== undefined) where.status  = query.orderStatus;
-    // if (query.phone) where.createdBy = { phone: query.phone };
+    const where: any = [];
+
+    if (query.search) {
+    // search theo id
+    where.push({
+      ...(query.orderStatus !== undefined && { status: query.orderStatus }),
+      id: query.search,
+    });
+
+    // search theo phone
+    where.push({
+      ...(query.orderStatus !== undefined && { status: query.orderStatus }),
+      user: { phone: query.search },
+    });
+  } else {
+    // không có search -> chỉ filter status
+    where.push({
+      ...(query.orderStatus !== undefined && { status: query.orderStatus }),
+    });
+  }
 
     const [orders, total] = await this.orderRepo.findAndCount({
       withDeleted: true,

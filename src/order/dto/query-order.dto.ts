@@ -9,11 +9,11 @@ export class QueryFindOrder extends PaginationDto {
 
   @ApiPropertyOptional({
     example: '0703918803',
-    description: 'số điện thoại',
+    description: 'số điện thoại hoac id',
   })
+  @Type(()=>String)
   @IsOptional()
-  @IsPhoneNumber('VN', { message: 'Sai định dạng số điện thoại (VN)' })
-  phone?: string;
+  search?: string;
 
   @ApiPropertyOptional({
     example: OrderStatus.NEW,
