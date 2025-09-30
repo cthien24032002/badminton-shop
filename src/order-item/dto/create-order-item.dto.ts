@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateOrderItemDto {
@@ -14,6 +15,7 @@ export class CreateOrderItemDto {
   quantity: number;
 
   @ApiProperty({ example: 100.000, description: 'giá sản phẩm lúc đặt hàng' })
+  @Type(()=>Number)
   @IsNotEmpty({ message: 'giá sản phẩm không được để trống' })
   @IsNumber({}, { message: 'giá sản phẩm phải là số' })
   unitPrice: number;
