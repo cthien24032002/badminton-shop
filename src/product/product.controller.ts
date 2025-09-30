@@ -53,7 +53,7 @@ export class ProductsController {
   @Post()
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
-    FilesInterceptor('files', 3, { storage: storageConfig('product') }),
+    FilesInterceptor('files', 5, { storage: storageConfig('product') }),
   )
   async create(
     @Body() createProductDto: CreateProductDto,
