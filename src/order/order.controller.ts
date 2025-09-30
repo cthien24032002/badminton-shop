@@ -16,7 +16,7 @@ import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 import { QueryFindOrder } from './dto/query-order.dto';
 import { UpdateStatusOrderDto } from './dto/update-status.dto';
 
-@Controller('order')
+@Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
