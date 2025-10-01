@@ -5,11 +5,13 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreateOrderItemDto {
 
   @ApiProperty({ example: 1, description: 'ID sản phẩm' })
+  @Type(()=>Number)
   @IsNotEmpty({ message: 'id sản phẩm không được để trống' })
   @IsNumber({}, { message: 'id sản phẩm phải là số' })
   productId: number;
 
   @ApiProperty({ example: 2, description: 'số lượng sản phẩm' })
+  @Type(()=>Number)
   @IsNumber({}, { message: 'số lượng phải là số' })
   @IsNotEmpty({ message: 'số lượng không được để trống' })
   quantity: number;
