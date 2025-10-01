@@ -7,7 +7,6 @@ import { CreateOrderItemDto } from 'src/order-item/dto/create-order-item.dto';
 export class CreateOrderDto {
   @ApiProperty({ example: 1, description: 'ID người dùng đặt hàng' })
   @IsNumber({}, { message: 'id người dùng phải là số' })
-  @IsPositive({ message: 'id người dùng phải là số dương' })
   userId: number;
 
   @IsEnum(OrderStatus)
