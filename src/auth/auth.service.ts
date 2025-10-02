@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { comparePassword } from 'src/common/utils/password.util';
 import { AdminService } from 'src/admin/admin.service';
+import { CreateUserDto } from 'src/user/dto/req/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -17,13 +18,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(phone: string) {
-    const user = await this.userService.findOnePhone(phone);
+  async validateUser(dto: CreateUserDto) {
+    let user = await this.userService.findOnePhone(dto.phone);
 
     if (!user) {
-      throw new NotFoundException(
-        `Người dùng với số điện thoại ${phone} không tồn tại`,
-      );
+      user = await this.userService.create(dto)
     }
 
     return user;

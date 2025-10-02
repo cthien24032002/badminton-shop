@@ -11,14 +11,15 @@ import {
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
+import { CreateUserDto } from 'src/user/dto/req/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/login')
-  async login(@Body() phone: string) {
-    const user = await this.authService.validateUser(phone);
+  async login(@Body() dto: CreateUserDto) {
+    const user = await this.authService.validateUser(dto);
 
     const dataLogin = await this.authService.login(user);
     return ApiCustomResponse.success(

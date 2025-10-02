@@ -81,9 +81,6 @@ export class UserService {
       where: { phone },
       // select: ['id', 'phone', 'name', 'isActive'],
     });
-    if (!user) {
-      throw new NotFoundException(`User with phone ${phone} not found`);
-    }
 
     return user;
   }
