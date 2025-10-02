@@ -9,14 +9,6 @@ export class CreateOrderDto {
   @IsNumber({}, { message: 'id người dùng phải là số' })
   userId: number;
 
-  @IsEnum(OrderStatus)
-  @ApiProperty({
-    example: OrderStatus.NEW,
-    description: 'Trạng thái đơn hàng',
-    enum: OrderStatus,
-  })
-  status: OrderStatus;
-
   @ApiProperty({ example: '182/3 Thanh Xuân Hà Nội', description: 'địa chỉ nhận hàng' })
   @IsNotEmpty({message: 'địa chỉ không được để trống'})
   @IsString({message: 'địa chỉ phải là chuỗi'})
