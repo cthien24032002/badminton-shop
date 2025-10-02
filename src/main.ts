@@ -16,9 +16,9 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: '*',
+    origin: '*', // Cho phép tất cả các nguồn (thích hợp khi test local)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    allowedHeaders: '*',
   });
 
   app.useGlobalFilters(new AllExceptionsFilter());
