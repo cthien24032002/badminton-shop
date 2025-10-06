@@ -1,3 +1,4 @@
+import { CategoriesModule } from './../categories/categories.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';

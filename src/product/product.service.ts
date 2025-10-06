@@ -54,7 +54,7 @@ export class ProductsService {
 
     return { dataResult, pagination };
   }
-  
+
   //  SITE USER
 
   // ProductService
@@ -117,9 +117,9 @@ export class ProductsService {
 
   async update(updateProductDto: UpdateProductDto) {
     const { id, ...updateData } = updateProductDto;
-    
-    const product = await this.productRepo.findOneOrFail({ where: { id } });
 
+    const product = await this.productRepo.findOneOrFail({ where: { id } });
+    product.category = null;
     // merge data mới vào product cũ
     const updatedProduct = this.productRepo.merge(product, {
       ...updateData,

@@ -37,10 +37,11 @@ export class Product extends BaseEntityDtoWithSlug {
   isFeatured: boolean;
   
   @ManyToOne(() => Category, {
+    nullable:true,
     eager: true,
     cascade:true
   })
-  category: Category;
+  category: Category | null;
 
   // @ManyToOne(() => Admin, { nullable: false, eager: true })
   // @JoinColumn({ name: 'createdBy' })

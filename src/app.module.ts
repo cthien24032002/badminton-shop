@@ -17,7 +17,6 @@ import { winstonConfig } from './common/config/logger.config';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ImagesModule } from './images/images.module';
-import { SeedModule } from './seeds/seeds.module';
 
 @Module({
   imports: [
