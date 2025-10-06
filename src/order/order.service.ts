@@ -16,7 +16,7 @@ export class OrderService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { orderItems,userId, ...dto } = createOrderDto;
+    const { orderItems, userId, ...dto } = createOrderDto;
     if (!orderItems || orderItems.length === 0) {
       throw new NotFoundException(`Đơn hàng ít nhất phải có 1 sản phẩm`);
     }
@@ -29,7 +29,7 @@ export class OrderService {
     const order = this.orderRepo.create({
       user: { id: userId },
       totalAmount,
-      ...dto
+      ...dto,
     });
 
     const createdOrder = await this.orderRepo.save(order);
@@ -75,7 +75,7 @@ export class OrderService {
       pageSize,
     );
 
-    return { dataResult:orders, pagination };
+    return { dataResult: orders, pagination };
   }
 
   async findOne(id: number): Promise<Order> {
@@ -95,23 +95,23 @@ export class OrderService {
     const where: any = [];
 
     if (query.search) {
-    // search theo id
-    where.push({
-      ...(query.orderStatus !== undefined && { status: query.orderStatus }),
-      id: query.search,
-    });
+      // search theo id
+      where.push({
+        ...(query.orderStatus !== undefined && { status: query.orderStatus }),
+        id: query.search,
+      });
 
-    // search theo phone
-    where.push({
-      ...(query.orderStatus !== undefined && { status: query.orderStatus }),
-      user: { phone: query.search },
-    });
-  } else {
-    // không có search -> chỉ filter status
-    where.push({
-      ...(query.orderStatus !== undefined && { status: query.orderStatus }),
-    });
-  }
+      // search theo phone
+      where.push({
+        ...(query.orderStatus !== undefined && { status: query.orderStatus }),
+        user: { phone: query.search },
+      });
+    } else {
+      // không có search -> chỉ filter status
+      where.push({
+        ...(query.orderStatus !== undefined && { status: query.orderStatus }),
+      });
+    }
 
     const [orders, total] = await this.orderRepo.findAndCount({
       withDeleted: true,
@@ -127,13 +127,23 @@ export class OrderService {
       pageSize,
     );
 
-    return { dataResult:orders, pagination };
+    return { dataResult: orders, pagination };
   }
 
-  async updateStatus(id: number, updateStatusDto: UpdateStatusOrderDto): Promise<Order> {
-    
-    return await this.orderRepo.save({id,status:updateStatusDto.status});
+  async updateStatus(
+    id: number,
+    updateStatusDto: UpdateStatusOrderDto,
+  ): Promise<Order> {
+    return await this.orderRepo.save({ id, status: updateStatusDto.status });
   }
 
+  async findTotal() {
+    // Tìm tất cả Order, kèm OrderItems
+    const orders = await this.orderRepo.find();
+    let totalAmount = 0;
+    // Tính totalAmount cho mỗi Order
+    totalAmount = orders.reduce((sum, item) => sum + Number(item.totalAmount), 0);
 
+    return {orders:totalAmount};
+  }
 }

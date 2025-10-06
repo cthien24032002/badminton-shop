@@ -15,23 +15,26 @@ export class OrderItemService {
     private readonly orderItemRepo: Repository<OrderItem>,
   ) {}
 
-  async create(createOrderItemDto: CreateOrderItemDto,orderId:number): Promise<OrderItem> {
-   
-    
-    const product = await this.productService.findOne(createOrderItemDto.productId,);
+  async create(
+    createOrderItemDto: CreateOrderItemDto,
+    orderId: number,
+  ): Promise<OrderItem> {
+    const product = await this.productService.findOne(
+      createOrderItemDto.productId,
+    );
 
     if (!product) {
       throw new NotFoundException(`Product not found`);
     }
     const item = this.orderItemRepo.create({
-      order:{id:orderId},
+      order: { id: orderId },
       product,
       quantity: createOrderItemDto.quantity,
       unitPrice: createOrderItemDto.unitPrice,
-      productName:createOrderItemDto.productName,
-      image:createOrderItemDto.image,
+      productName: createOrderItemDto.productName,
+      image: createOrderItemDto.image,
     });
-    
+
     return await this.orderItemRepo.save(item);
   }
 

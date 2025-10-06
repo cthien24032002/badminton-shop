@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpStatus, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpStatus,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { OrderItemService } from './order-item.service';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 
@@ -7,10 +17,13 @@ export class OrderItemController {
   constructor(private readonly orderItemService: OrderItemService) {}
 
   @Get(':id')
-  async findOne(@Param('id',ParseIntPipe) id: number ) {
+  async findOne(@Param('id', ParseIntPipe) id: number) {
     const dataResult = await this.orderItemService.findOne(id);
-    return ApiCustomResponse.success(HttpStatus.OK, dataResult, `get order item with id ${id} successfully`);
- 
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      dataResult,
+      `get order item with id ${id} successfully`,
+    );
   }
 
 }

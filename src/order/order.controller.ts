@@ -55,10 +55,20 @@ export class OrderController {
       'Lấy danh sách đơn hàng thành công',
     );
   }
+  @Get('/total')
+  async findTotal() {
+    const order = await this.orderService.findTotal();
+    return ApiCustomResponse.success(
+      HttpStatus.OK,
+      order,
+      `Lấy thông tin đơn hàng thành công`,
+    );
+  }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const order = await this.orderService.findOne(id);
+  async findOne(@Param('id') id: number) {
+    console.log('haha');
+    const order = await this.orderService.findOne(+id);
     return ApiCustomResponse.success(
       HttpStatus.OK,
       order,
@@ -67,8 +77,11 @@ export class OrderController {
   }
 
   @Patch('/status/:id')
-  async updateStatus(@Param('id', ParseIntPipe) id: number, @Body() updateStatusDto: UpdateStatusOrderDto) {
-    const order = await this.orderService.updateStatus(id,updateStatusDto);
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateStatusDto: UpdateStatusOrderDto,
+  ) {
+    const order = await this.orderService.updateStatus(id, updateStatusDto);
     return ApiCustomResponse.success(
       HttpStatus.OK,
       order,
