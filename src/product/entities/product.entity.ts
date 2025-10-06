@@ -35,11 +35,12 @@ export class Product extends BaseEntityDtoWithSlug {
   stock: number;
   @Column({ type: 'boolean', default: false })
   isFeatured: boolean;
-  
-  @ManyToOne(() => Category, {
-    nullable:true,
+
+  @ManyToOne(() => Category, (category) => category.products,{
+    nullable: true,
     eager: true,
-    cascade:true
+    cascade: ['insert', 'update'], // chỉ cascade khi thêm/sửa, không khi xóa
+    onDelete: 'SET NULL', // <-- QUAN TRỌNG
   })
   category: Category | null;
 
