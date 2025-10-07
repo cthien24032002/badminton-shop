@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpStatus, BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { CustomerRequestService } from './customer-request.service';
 import { CreateCustomerRequestDto } from './dto/create-customer-request.dto';
@@ -33,7 +34,7 @@ export class CustomerRequestController {
   }
 
   @Get()
-  async findAll(@Body() query: QueryFindRequest) {
+  async findAll(@Query() query: QueryFindRequest) {
     const { dataResult, pagination } =
       await this.customerRequestService.findAll(query);
 

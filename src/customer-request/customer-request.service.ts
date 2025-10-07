@@ -60,4 +60,5 @@ export class CustomerRequestService {
   update(id: number, updateCustomerRequestDto: UpdateCustomerRequestStatusDto) {
     return this.customerRequestRepo.update(id,{...updateCustomerRequestDto });
   }
+
 }
