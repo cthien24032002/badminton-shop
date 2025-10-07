@@ -23,27 +23,31 @@ export class CustomerRequestService {
 
   async findAll(query: QueryFindRequest) {
     const { page = 1, pageSize = 10, search, requestStatus } = query;
-    const where: any = {};
-    // Tìm kiếm theo tên hoặc số điện thoại
+    const where: any[] = [];
+
     if (search) {
-      where.$or = [
+      where.push(
         { slug: ILike(`%${search}%`) },
         { phone: ILike(`%${search}%`) },
-      ];
+      );
     }
 
-    // Lọc theo trạng thái
     if (requestStatus) {
-      where.requestStatus = requestStatus;
+      // Nếu có requestStatus, phải map từng object trong where
+      if (where.length) {
+        where.forEach((w) => (w.requestStatus = requestStatus));
+      } else {
+        where.push({ requestStatus });
+      }
     }
 
     const [requests, total] = await this.customerRequestRepo.findAndCount({
       skip: (page - 1) * pageSize,
       take: pageSize,
-      where,
+      where: where.length ? where : {},
       order: { createdAt: 'DESC' },
     });
-
+    
     const pagination = buildPaginationMeta(
       total,
       requests.length,
@@ -58,7 +62,6 @@ export class CustomerRequestService {
   }
 
   update(id: number, updateCustomerRequestDto: UpdateCustomerRequestStatusDto) {
-    return this.customerRequestRepo.update(id,{...updateCustomerRequestDto });
+    return this.customerRequestRepo.update(id, { ...updateCustomerRequestDto });
   }
-
 }
