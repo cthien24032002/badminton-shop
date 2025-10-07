@@ -11,6 +11,9 @@ export class CustomerRequest extends BaseEntityDtoWithSlug {
   @Column({ nullable: false })
   phone: string;
 
+  @Column({ nullable: false,type:'nvarchar',length:500})
+  address: string;
+
   @Column({ nullable: false, type: 'text' })
   description: string;
 
