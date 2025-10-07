@@ -17,6 +17,7 @@ import { winstonConfig } from './common/config/logger.config';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ImagesModule } from './images/images.module';
+import { CustomerRequestModule } from './customer-request/customer-request.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ImagesModule } from './images/images.module';
     OrderItemModule,
     BannersModule,
     ImagesModule,
+    CustomerRequestModule,
     // SeedModule
   ],
   controllers: [AppController],
