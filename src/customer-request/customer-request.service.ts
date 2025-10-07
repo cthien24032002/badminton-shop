@@ -34,7 +34,7 @@ export class CustomerRequestService {
 
     // Lọc theo trạng thái
     if (requestStatus) {
-      where.status = requestStatus;
+      where.requestStatus = requestStatus;
     }
 
     const [requests, total] = await this.customerRequestRepo.findAndCount({
