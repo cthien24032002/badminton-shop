@@ -13,7 +13,7 @@ import { OrderStatus, PaymentMethod } from 'src/common/enums';
 
 @Entity('orders')
 export class Order extends BaseEntityDto {
-  @ManyToOne(() => User, { nullable: true,eager:true })
+  @ManyToOne(() => User, { nullable: true, eager: true })
   user: User | null;
 
   @Column({
@@ -26,15 +26,17 @@ export class Order extends BaseEntityDto {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   totalAmount: number;
 
-  @Column({ type: 'nvarchar',length:500,nullable:false})
+  @Column({ type: 'nvarchar', length: 500, nullable: false })
   address: string;
 
-  @Column({ type: 'nvarchar',nullable:false})
+  @Column({ type: 'nvarchar', nullable: false })
   name: string;
 
-  @Column({ type: 'nvarchar',nullable:false})
+  @Column({ type: 'nvarchar', nullable: false })
   phone: string;
 
+  @Column({ type: 'enum', enum: PaymentMethod, default: PaymentMethod.COD })
+  paymentMethod: PaymentMethod;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
     eager: true,

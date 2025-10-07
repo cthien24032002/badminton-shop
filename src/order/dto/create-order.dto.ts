@@ -25,14 +25,14 @@ export class CreateOrderDto {
   @IsString({message: 'phone phải là chuỗi'})
   phone: string;
 
-  // @IsEnum(PaymentMethod)
-  // @IsNotEmpty({ message: 'phương thức thanh toán không được để trống' })
-  // @ApiProperty({
-  //   enum: PaymentMethod,
-  //   example: PaymentMethod.COD,
-  //   description: 'Phương thức thanh toán',
-  // })
-  // paymentMethod: PaymentMethod;
+  @IsEnum(PaymentMethod)
+  @IsNotEmpty({ message: 'phương thức thanh toán không được để trống' })
+  @ApiProperty({
+    enum: PaymentMethod,
+    example: PaymentMethod.COD,
+    description: 'Phương thức thanh toán',
+  })
+  paymentMethod: PaymentMethod;
 
   @ValidateNested({ each: true })
   @Type(() => CreateOrderItemDto)

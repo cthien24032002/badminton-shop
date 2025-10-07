@@ -15,6 +15,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 import { QueryFindOrder } from './dto/query-order.dto';
 import { UpdateStatusOrderDto } from './dto/update-status.dto';
+import { OrderStatus } from 'src/common/enums';
 
 @Controller('orders')
 export class OrderController {
@@ -46,7 +47,7 @@ export class OrderController {
   @Get()
   async findAllForUser(@Query() query: QueryFindOrder) {
     const { dataResult, pagination } =
-    await this.orderService.findAllForUser(query);
+      await this.orderService.findAllForUser(query);
 
     return ApiCustomResponse.paginated(
       HttpStatus.OK,
@@ -55,9 +56,10 @@ export class OrderController {
       'Lấy danh sách đơn hàng thành công',
     );
   }
-  @Get('/total')
-  async findTotal() {
-    const order = await this.orderService.findTotal();
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const order = await this.orderService.findOne(+id);
     return ApiCustomResponse.success(
       HttpStatus.OK,
       order,
@@ -65,10 +67,9 @@ export class OrderController {
     );
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    console.log('haha');
-    const order = await this.orderService.findOne(+id);
+  @Get('/total/:orderStatus')
+  async findTotal(@Param('orderStatus') orderStatus: OrderStatus ) {
+    const order = await this.orderService.findTotal(orderStatus);
     return ApiCustomResponse.success(
       HttpStatus.OK,
       order,

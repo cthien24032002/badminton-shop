@@ -7,6 +7,7 @@ import { OrderItemService } from 'src/order-item/order-item.service';
 import { QueryFindOrder } from './dto/query-order.dto';
 import { buildPaginationMeta } from 'src/common/utils/pagination.util';
 import { UpdateStatusOrderDto } from './dto/update-status.dto';
+import { OrderStatus } from 'src/common/enums';
 
 @Injectable()
 export class OrderService {
@@ -103,7 +104,7 @@ export class OrderService {
       // search theo phone
       where.push({
         ...(query.orderStatus !== undefined && { status: query.orderStatus }),
-        user: { phone: query.search },
+        phone: query.search
       });
     } else {
       // không có search -> chỉ filter status
@@ -136,9 +137,9 @@ export class OrderService {
     return await this.orderRepo.save({ id, status: updateStatusDto.status });
   }
 
-  async findTotal() {
+  async findTotal( orderStatus: OrderStatus) {
     // Tìm tất cả Order, kèm OrderItems
-    const orders = await this.orderRepo.find();
+    const orders = await this.orderRepo.find({where:{status: orderStatus}});
     let totalAmount = 0;
     // Tính totalAmount cho mỗi Order
     totalAmount = orders.reduce((sum, item) => sum + Number(item.totalAmount), 0);
