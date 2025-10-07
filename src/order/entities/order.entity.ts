@@ -29,6 +29,9 @@ export class Order extends BaseEntityDto {
   @Column({ type: 'nvarchar', length: 500, nullable: false })
   address: string;
 
+  @Column({ type: 'text', nullable: true })
+  note: string;
+
   @Column({ type: 'nvarchar', nullable: false })
   name: string;
 

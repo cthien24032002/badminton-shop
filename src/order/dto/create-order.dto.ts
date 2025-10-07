@@ -21,6 +21,11 @@ export class CreateOrderDto {
   name: string;
 
   @ApiProperty({ example: '182/3 Thanh Xuân Hà Nội', description: 'địa chỉ nhận hàng' })
+  @IsOptional({message: 'Note không được để trống'})
+  @IsString({message: 'Note phải là chuỗi'})
+  note: string;
+
+  @ApiProperty({ example: '182/3 Thanh Xuân Hà Nội', description: 'địa chỉ nhận hàng' })
   @IsNotEmpty({message: 'địa chỉ không được để trống'})
   @IsString({message: 'phone phải là chuỗi'})
   phone: string;
