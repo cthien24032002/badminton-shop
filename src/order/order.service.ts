@@ -27,7 +27,6 @@ export class OrderService {
     );
 
     const order = this.orderRepo.create({
-      user: { id: userId },
       totalAmount,
       ...dto,
     });

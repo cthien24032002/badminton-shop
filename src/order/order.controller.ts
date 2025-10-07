@@ -46,7 +46,7 @@ export class OrderController {
   @Get()
   async findAllForUser(@Query() query: QueryFindOrder) {
     const { dataResult, pagination } =
-      await this.orderService.findAllForUser(query);
+    await this.orderService.findAllForUser(query);
 
     return ApiCustomResponse.paginated(
       HttpStatus.OK,

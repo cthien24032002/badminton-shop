@@ -29,8 +29,12 @@ export class Order extends BaseEntityDto {
   @Column({ type: 'nvarchar',length:500,nullable:false})
   address: string;
 
-  // @Column({ type: 'enum', enum: PaymentMethod })
-  // paymentMethod: PaymentMethod;
+  @Column({ type: 'nvarchar',nullable:false})
+  name: string;
+
+  @Column({ type: 'nvarchar',nullable:false})
+  phone: string;
+
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order, {
     eager: true,
