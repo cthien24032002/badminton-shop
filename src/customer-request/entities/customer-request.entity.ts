@@ -14,6 +14,9 @@ export class CustomerRequest extends BaseEntityDtoWithSlug {
   @Column({ nullable: false,type:'nvarchar',length:500})
   address: string;
 
+  @Column({ nullable: true,type:'text'})
+  images: string | null;
+
   @Column({ nullable: false, type: 'text' })
   description: string;
 

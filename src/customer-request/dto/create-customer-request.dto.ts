@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   MaxLength,
@@ -12,6 +13,15 @@ export class CreateCustomerRequestDto {
   @IsNotEmpty()
   @MaxLength(255)
   name: string;
+
+  @ApiPropertyOptional({
+    example: ['image1.jpg', 'image2.png'],
+    description: 'Danh sách hình ảnh (tùy chọn)',
+  })
+  @IsOptional()
+  @IsString({ each: true })
+  @MaxLength(255, { each: true })
+  images?: string[];
 
   @ApiProperty({ example: 'TP.HCM', description: 'Dia Chi khách hàng' })
   @IsString()

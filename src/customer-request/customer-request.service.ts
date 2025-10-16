@@ -15,9 +15,10 @@ export class CustomerRequestService {
   ) {}
 
   create(createCustomerRequestDto: CreateCustomerRequestDto) {
-    const requestCreate = this.customerRequestRepo.create(
-      createCustomerRequestDto,
-    );
+    const requestCreate = this.customerRequestRepo.create({
+      ...createCustomerRequestDto,
+      images: JSON.stringify(createCustomerRequestDto.images),
+    });
     return this.customerRequestRepo.save(requestCreate);
   }
 
@@ -47,7 +48,7 @@ export class CustomerRequestService {
       where: where.length ? where : {},
       order: { createdAt: 'DESC' },
     });
-    
+
     const pagination = buildPaginationMeta(
       total,
       requests.length,

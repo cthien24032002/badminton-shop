@@ -56,20 +56,20 @@ export class CustomerRequestController {
     );
   }
 
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateCustomerRequestDto: UpdateCustomerRequestStatusDto,
-  ) {
-    const request = await this.customerRequestService.update(
-      +id,
-      updateCustomerRequestDto,
-    );
-    if(!request.affected) throw new BadRequestException('Không thể cập nhập trạng thái yêu cầu')
-    return ApiCustomResponse.success(
-      HttpStatus.OK,
-      null,
-      `Cập nhập trạng thái yêu cầu thành công`,
-    );
-  }
+  // @Patch(':id')
+  // async update(
+  //   @Param('id') id: string,
+  //   @Body() updateCustomerRequestDto: UpdateCustomerRequestStatusDto,
+  // ) {
+  //   const request = await this.customerRequestService.update(
+  //     +id,
+  //     updateCustomerRequestDto,
+  //   );
+  //   if(!request.affected) throw new BadRequestException('Không thể cập nhập trạng thái yêu cầu')
+  //   return ApiCustomResponse.success(
+  //     HttpStatus.OK,
+  //     null,
+  //     `Cập nhập trạng thái yêu cầu thành công`,
+  //   );
+  // }
 }
