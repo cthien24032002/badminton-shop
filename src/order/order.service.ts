@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -8,13 +8,40 @@ import { QueryFindOrder } from './dto/query-order.dto';
 import { buildPaginationMeta } from 'src/common/utils/pagination.util';
 import { UpdateStatusOrderDto } from './dto/update-status.dto';
 import { OrderStatus } from 'src/common/enums';
+import { UpdateImageOrderDto } from './dto/update-image.dto';
+import * as fs from 'fs';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly orderItemService: OrderItemService,
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
+
+  async createOrderImage(fileName: string, createDto: UpdateImageOrderDto) {
+    return this.orderRepo.save({ id: createDto.id, imageOrder: fileName });
+  }
+
+  async removeImage(id: number) {
+    const order = await this.orderRepo.findOneOrFail({ where: { id } });
+    // Xóa file nhưng không ảnh hưởng endpoint nếu lỗi
+    if (order.imageOrder) {
+      try {
+        await fs.promises.unlink(order.imageOrder);
+      } catch (err) {
+        this.logger?.error({
+          message: 'Không thể xóa file khi xoá hình ảnh chuyển khoản',
+          file: order.imageOrder,
+          err,
+        });
+      }
+    }
+    // update trong DB
+    return this.orderRepo.save({id:order.id,imageOrder:null});
+  }
 
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
     const { orderItems, userId, ...dto } = createOrderDto;
@@ -104,7 +131,7 @@ export class OrderService {
       // search theo phone
       where.push({
         ...(query.orderStatus !== undefined && { status: query.orderStatus }),
-        phone: query.search
+        phone: query.search,
       });
     } else {
       // không có search -> chỉ filter status
@@ -137,13 +164,18 @@ export class OrderService {
     return await this.orderRepo.save({ id, status: updateStatusDto.status });
   }
 
-  async findTotal( orderStatus: OrderStatus) {
+  async findTotal(orderStatus: OrderStatus) {
     // Tìm tất cả Order, kèm OrderItems
-    const orders = await this.orderRepo.find({where:{status: orderStatus}});
+    const orders = await this.orderRepo.find({
+      where: { status: orderStatus },
+    });
     let totalAmount = 0;
     // Tính totalAmount cho mỗi Order
-    totalAmount = orders.reduce((sum, item) => sum + Number(item.totalAmount), 0);
+    totalAmount = orders.reduce(
+      (sum, item) => sum + Number(item.totalAmount),
+      0,
+    );
 
-    return {orders:totalAmount};
+    return { orders: totalAmount };
   }
 }

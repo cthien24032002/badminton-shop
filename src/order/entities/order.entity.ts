@@ -35,6 +35,9 @@ export class Order extends BaseEntityDto {
   @Column({ type: 'nvarchar', nullable: false })
   name: string;
 
+  @Column({type:'varchar',nullable:true})
+  imageOrder: string | null;
+
   @Column({ type: 'nvarchar', nullable: false })
   phone: string;
 

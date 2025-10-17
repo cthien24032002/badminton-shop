@@ -9,6 +9,10 @@ import {
   HttpStatus,
   ParseIntPipe,
   Query,
+  UseInterceptors,
+  UploadedFile,
+  Inject,
+  BadRequestException,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -16,10 +20,57 @@ import { ApiCustomResponse } from 'src/common/response/ApiRespone';
 import { QueryFindOrder } from './dto/query-order.dto';
 import { UpdateStatusOrderDto } from './dto/update-status.dto';
 import { OrderStatus } from 'src/common/enums';
+import { ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storageConfig } from 'src/common/config/upload.config';
+import { UpdateImageOrderDto } from './dto/update-image.dto';
+import { withFileRollback } from 'src/common/utils/with-file-rollback';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 @Controller('orders')
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(
+    private readonly orderService: OrderService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
+
+
+  @Delete('/image/:id')
+  async removeOrderImage(@Param('id', ParseIntPipe) id: number) {
+    await this.orderService.removeImage(id);
+    return ApiCustomResponse.success(
+      HttpStatus.NO_CONTENT,
+      null,
+      'Xoá hình ảnh chuyển khoản thành công',
+    );
+  }
+
+  @Post('/image/')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', { storage: storageConfig('orders') }),
+  )
+  async createImageOrder(
+    @Body() createDto: UpdateImageOrderDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return withFileRollback(
+      file,
+      async () => {
+        if(!file) throw new BadRequestException('Vui lòng gửi hình ảnh chuyển khoản') 
+        const fileName = file.path;
+        await this.orderService.createOrderImage(fileName, createDto);
+
+        return ApiCustomResponse.success(
+          HttpStatus.OK,
+          null,
+          'Gửi thành công hình ảnh chuyển khoản',
+        );
+      },
+      this.logger,
+    );
+  }
 
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto) {
@@ -68,7 +119,7 @@ export class OrderController {
   }
 
   @Get('/total/:orderStatus')
-  async findTotal(@Param('orderStatus') orderStatus: OrderStatus ) {
+  async findTotal(@Param('orderStatus') orderStatus: OrderStatus) {
     const order = await this.orderService.findTotal(orderStatus);
     return ApiCustomResponse.success(
       HttpStatus.OK,
