@@ -1,6 +1,7 @@
 import { ApiProperty, PartialType, OmitType } from '@nestjs/swagger';
 import { CreateProductDto } from './create-product.dto';
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsPositive } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // OmitType để loại bỏ field không cho update (ví dụ: createdBy, phone,...)
 export class UpdateProductDto extends PartialType(

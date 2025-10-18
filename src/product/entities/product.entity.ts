@@ -44,6 +44,12 @@ export class Product extends BaseEntityDtoWithSlug {
   })
   category: Category | null;
 
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true, default: null })
+  salePrice: number | null; // Giá sau khi áp dụng giảm giá
+
+
+
+
   // @ManyToOne(() => Admin, { nullable: false, eager: true })
   // @JoinColumn({ name: 'createdBy' })
   // createdBy: Admin;
@@ -59,4 +65,5 @@ export class Product extends BaseEntityDtoWithSlug {
       this.slug = slugify(this.name);
     }
   }
+  
 }

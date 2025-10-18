@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -12,11 +12,13 @@ import { UpdateImageOrderDto } from './dto/update-image.dto';
 import * as fs from 'fs';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly orderItemService: OrderItemService,
+    private readonly userService: UserService,
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
@@ -157,11 +159,31 @@ export class OrderService {
     return { dataResult: orders, pagination };
   }
 
-  async updateStatus(
-    id: number,
-    updateStatusDto: UpdateStatusOrderDto,
-  ): Promise<Order> {
-    return await this.orderRepo.save({ id, status: updateStatusDto.status });
+async updateStatus(id: number, updateStatusDto: UpdateStatusOrderDto): Promise<Order> {
+    const order = await this.orderRepo.findOneOrFail({
+      where: { id },
+      relations: ['orderItems'],
+    });
+
+    if (
+      updateStatusDto.status === OrderStatus.COMPLETED &&
+      order.status !== OrderStatus.COMPLETED
+    ) {
+      const points = Math.round(Number(order.totalAmount) * 0.1); // 10% totalAmount
+      try {
+        await this.userService.updatePointsByPhone(order.phone, points);
+      } catch (error) {
+        this.logger.error({
+          message: `Không thể cập nhật điểm cho user với phone ${order.phone}`,
+          error: error.message,
+        });
+        throw new BadRequestException(`Không thể cập nhật điểm cho user với phone ${order.phone}`);
+      }
+    }
+
+    order.status = updateStatusDto.status;
+    const updatedOrder = await this.orderRepo.save(order);
+    return updatedOrder;
   }
 
   async findTotal(orderStatus: OrderStatus) {
