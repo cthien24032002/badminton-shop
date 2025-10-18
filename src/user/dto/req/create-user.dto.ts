@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -41,4 +42,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsString({ message: 'avatar phải là chữ' })
   avatar?: string;
-}
+
+
+  @IsOptional()
+  @ApiProperty({ example: 38, description: 'Điểm tích lũy' })
+  @IsNumber({}, { message: 'Điểm phải là số' })
+  point: number;}

@@ -118,4 +118,25 @@ export class UserService {
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
+
+
+
+  async updatePointsByPhone(phone: string, points: number) {
+    const user = await this.userRepo.findOne({ where: { phone } });
+    if (!user) {
+      throw new NotFoundException(`User with phone ${phone} not found`);
+    }
+    const currentPoints = Number(user.point) || 0;
+    const newPoints = currentPoints + points;
+    user.point = newPoints;
+    return await this.userRepo.save(user);
+  }
+
+  async findOneByPhone(phone: string) {
+    const user = await this.userRepo.findOne({ where: { phone } });
+    if (!user) {
+      throw new NotFoundException(`User with phone ${phone} not found`);
+    }
+    return user;
+  }
 }

@@ -20,6 +20,9 @@ export class User extends BaseEntityDtoWithSlug {
   @Column({ type: 'nvarchar',length:1000,nullable:true})
   avatar: string | null;
 
+  @Column({type: 'decimal', precision: 10, scale: 2, default: 0})
+  point: number;
+
    @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
 
