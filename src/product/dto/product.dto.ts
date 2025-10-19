@@ -17,6 +17,9 @@ export class ProductDto extends BaseDtoWithSlug {
   price: number;
 
   @Expose()
+  salePrice: number;
+
+  @Expose()
   isFeatured: boolean;
 
   @Expose()

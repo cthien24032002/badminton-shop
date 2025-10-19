@@ -33,6 +33,12 @@ export class CreateProductDto {
   @IsNumber()
   price: number;
 
+  @IsOptional()
+  @ApiProperty({ example: 120.0, description: 'giá giảm của sản phẩm ' })
+  @Type(() => Number)
+  @IsNumber({}, { message: 'giá giảm phải là số' })
+  salePrice?: number;
+
   @ApiProperty({ example: 50, description: 'Stock quantity of the product' })
   @Type(() => Number)
   @IsInt()
@@ -43,8 +49,10 @@ export class CreateProductDto {
   @IsInt()
   categoryId: number;
 
-  @ApiProperty({ example: true, description: 'Is the product featured?' })
-  @Type(() => Number)
-  @IsInt()
+ @ApiProperty({ example: true, description: 'San pham hot' })
+  @IsOptional()
+  @IsBoolean({ message: 'Phải là boolean' })
   isFeatured?: number;
+
+
 }

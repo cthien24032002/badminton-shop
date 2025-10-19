@@ -10,4 +10,6 @@ export class UserDto extends BaseDtoWithSlug {
   email: string;
   @Expose()
   address: string;
+  @Expose()
+  point: number;
 }
