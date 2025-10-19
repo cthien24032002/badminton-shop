@@ -38,13 +38,11 @@ export class CreateUserDto {
   @IsString({ message: 'Địa chỉ phải là chữ' })
   address?: string;
 
-  @ApiProperty({ example: 'https://example.com', description: 'avatar người dùng' })
+  @ApiProperty({
+    example: 'https://example.com',
+    description: 'avatar người dùng',
+  })
   @IsOptional()
   @IsString({ message: 'avatar phải là chữ' })
   avatar?: string;
-
-
-  @IsOptional()
-  @ApiProperty({ example: 38, description: 'Điểm tích lũy' })
-  @IsNumber({}, { message: 'Điểm phải là số' })
-  point: number;}
+}

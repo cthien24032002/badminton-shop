@@ -7,7 +7,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
-import { Like, Repository } from 'typeorm';
+import { Like, MoreThanOrEqual, Repository } from 'typeorm';
 import { ProductDto } from './dto/product.dto';
 import { plainToInstance } from 'class-transformer';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
@@ -55,6 +55,16 @@ export class ProductsService {
     return { dataResult, pagination };
   }
 
+  async updateStock(id: number, qty: number) {
+    const product = await this.findOne(id);
+    if (qty > product.stock)
+      throw new BadRequestException(
+        `Sản phẩm ${product.name} không đủ số lượng đơn hàng`,
+      );
+    const stock = product.stock - qty;
+    return this.productRepo.save({ id: product.id, stock: stock });
+  }
+
   //  SITE USER
 
   // ProductService
@@ -80,6 +90,8 @@ export class ProductsService {
     const { page = 1, pageSize = 10, search, categoryId } = query;
 
     const where: any = {};
+
+    where.stock = MoreThanOrEqual(1);
 
     if (search) where.slug = Like(`%${slugify(search)}%`);
 

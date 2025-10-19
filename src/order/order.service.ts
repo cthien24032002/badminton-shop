@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from './entities/order.entity';
@@ -13,6 +13,7 @@ import * as fs from 'fs';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { UserService } from 'src/user/user.service';
+import { Product } from 'src/product/entities/product.entity';
 
 @Injectable()
 export class OrderService {
@@ -42,41 +43,63 @@ export class OrderService {
       }
     }
     // update trong DB
-    return this.orderRepo.save({id:order.id,imageOrder:null});
+    return this.orderRepo.save({ id: order.id, imageOrder: null });
   }
 
+  // async create(createOrderDto: CreateOrderDto): Promise<Order> {
+  //   const { orderItems, userId, ...dto } = createOrderDto;
+  //   if (!orderItems || orderItems.length === 0) {
+  //     throw new NotFoundException(`Đơn hàng ít nhất phải có 1 sản phẩm`);
+  //   }
+
+  //   const totalAmount = orderItems.reduce(
+  //     (acc, cur) => acc + cur.quantity * cur.unitPrice,
+  //     0,
+  //   );
+
+  //   const order = this.orderRepo.create({
+  //     totalAmount,
+  //     ...dto,
+  //   });
+
+  //   const createdOrder = await this.orderRepo.save(order);
+
+  //   //  Tạo OrderItems song song bằng Promise.all
+  //   await Promise.all(
+  //     orderItems.map((itemDto) =>
+  //       this.orderItemService.create(itemDto, createdOrder.id),
+  //     ),
+  //   );
+
+  //   return createdOrder;
+  // }
+
   async create(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { orderItems, userId, ...dto } = createOrderDto;
+    const { orderItems, ...dto } = createOrderDto;
+
     if (!orderItems || orderItems.length === 0) {
       throw new NotFoundException(`Đơn hàng ít nhất phải có 1 sản phẩm`);
     }
 
-    const totalAmount = orderItems.reduce(
-      (acc, cur) => acc + cur.quantity * cur.unitPrice,
-      0,
-    );
+    return await this.orderRepo.manager.transaction(async (manager) => {
+      const totalAmount = orderItems.reduce(
+        (acc, cur) => acc + cur.quantity * cur.unitPrice,
+        0,
+      );
 
-    const order = this.orderRepo.create({
-      totalAmount,
-      ...dto,
+      // Tạo order
+      const order = manager.create(Order, { totalAmount, ...dto });
+      const createdOrder = await manager.save(order);
+
+      // Gọi orderItemService với cùng transaction
+      await Promise.all(
+        orderItems.map((itemDto) =>
+          this.orderItemService.create(itemDto, createdOrder.id, manager),
+        ),
+      );
+
+      return createdOrder;
     });
-
-    const createdOrder = await this.orderRepo.save(order);
-
-    //  Tạo OrderItems song song bằng Promise.all
-    await Promise.all(
-      orderItems.map((itemDto) =>
-        this.orderItemService.create(itemDto, createdOrder.id),
-      ),
-    );
-
-    // * có thể dùng thay cho đoạn trên nếu chưa quen ngôn ngữ
-
-    // for (const itemDto of orderItems) {
-    //   await this.orderItemService.create(itemDto, createdOrder.id);
-    // }
-
-    return createdOrder;
   }
 
   async findAllForUser(query: QueryFindOrder) {
@@ -159,31 +182,77 @@ export class OrderService {
     return { dataResult: orders, pagination };
   }
 
-async updateStatus(id: number, updateStatusDto: UpdateStatusOrderDto): Promise<Order> {
-    const order = await this.orderRepo.findOneOrFail({
-      where: { id },
-      relations: ['orderItems'],
-    });
+  // async updateStatus(
+  //   id: number,
+  //   updateStatusDto: UpdateStatusOrderDto,
+  // ): Promise<Order> {
+  //   const order = await this.orderRepo.findOneOrFail({
+  //     where: { id },
+  //     relations: ['orderItems'],
+  //   });
 
-    if (
-      updateStatusDto.status === OrderStatus.COMPLETED &&
-      order.status !== OrderStatus.COMPLETED
-    ) {
-      const points = Math.round(Number(order.totalAmount) * 0.1); // 10% totalAmount
-      try {
-        await this.userService.updatePointsByPhone(order.phone, points);
-      } catch (error) {
-        this.logger.error({
-          message: `Không thể cập nhật điểm cho user với phone ${order.phone}`,
-          error: error.message,
-        });
-        throw new BadRequestException(`Không thể cập nhật điểm cho user với phone ${order.phone}`);
+  //   if (
+  //     updateStatusDto.status === OrderStatus.COMPLETED &&
+  //     order.status !== OrderStatus.COMPLETED
+  //   ) {
+  //     const points = Math.round(Number(order.totalAmount) * 0.1); // 10% totalAmount
+  //     await this.userService.updatePointsByPhone(order.phone, points);
+  //   }
+
+  //   order.status = updateStatusDto.status;
+  //   return this.orderRepo.save(order);
+  // }
+
+  async updateStatus(
+    id: number,
+    updateStatusDto: UpdateStatusOrderDto,
+  ): Promise<Order> {
+    return await this.orderRepo.manager.transaction(async (manager) => {
+      const order = await manager.findOneOrFail(Order, {
+        where: { id },
+        relations: ['orderItems', 'orderItems.product'], // cần load product để cập nhật stock
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      // Nếu chuyển sang COMPLETED thì cộng điểm thưởng
+      if (
+        updateStatusDto.status === OrderStatus.COMPLETED &&
+        order.status !== OrderStatus.COMPLETED
+      ) {
+        const points = Math.round(Number(order.totalAmount) * 0.1);
+
+        await this.userService.updatePointsByPhone(
+          order.phone,
+          points,
+          manager,
+        );
       }
-    }
 
-    order.status = updateStatusDto.status;
-    const updatedOrder = await this.orderRepo.save(order);
-    return updatedOrder;
+      // Nếu chuyển sang CANCELLED thì trả lại stock
+      if (
+        updateStatusDto.status === OrderStatus.CANCELLED &&
+        order.status !== OrderStatus.CANCELLED
+      ) {
+        await Promise.all(
+          order.orderItems.map(async (item) => {
+            if (!item.product) return;
+
+            const product = await manager.findOne(Product, {
+              where: { id: item.product.id },
+              lock: { mode: 'pessimistic_write' },
+            });
+
+            if (product) {
+              const stock = (product.stock ?? 0) + item.quantity;
+              await manager.save({ id: product.id, stock });
+            }
+          }),
+        );
+      }
+
+      order.status = updateStatusDto.status;
+      return await manager.save(order);
+    });
   }
 
   async findTotal(orderStatus: OrderStatus) {

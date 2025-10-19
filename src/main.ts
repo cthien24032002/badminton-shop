@@ -44,6 +44,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document); // http://localhost:1021/api/docs
 
-  await app.listen(getEnv('PORT') ?? 3001);
+  await app.listen(getEnv('PORT') ?? 1051);
 }
 bootstrap();

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Like, Repository } from 'typeorm';
+import { EntityManager, Like, Repository } from 'typeorm';
 import { hashPassword } from 'src/common/utils/password.util';
 import { CreateUserDto } from './dto/req/create-user.dto';
 import { UpdateUserDto } from './dto/req/update-user.dto';
@@ -119,17 +119,33 @@ export class UserService {
     return `This action removes a #${id} user`;
   }
 
+  // async updatePointsByPhone(phone: string, points: number) {
+  //   const user = await this.findOnePhone(phone);
+  //   if (!user) {
+  //     return;
+  //   }
+  //   const currentPoints = Number(user.point) || 0;
+  //   const newPoints = currentPoints + points;
+  //   user.point = newPoints;
+  //   await this.userRepo.save(user);
+  //   return;
+  // }
 
+  async updatePointsByPhone(
+    phone: string,
+    points: number,
+    manager?: EntityManager,
+  ) {
+    const repo = manager ? manager.getRepository(User) : this.userRepo;
 
-  async updatePointsByPhone(phone: string, points: number) {
-    const user = await this.userRepo.findOne({ where: { phone } });
-    if (!user) {
-      throw new NotFoundException(`User with phone ${phone} not found`);
-    }
-    const currentPoints = Number(user.point) || 0;
-    const newPoints = currentPoints + points;
-    user.point = newPoints;
-    return await this.userRepo.save(user);
+    const user = await repo.findOne({
+      where: { phone },
+      lock: { mode: 'pessimistic_write' },
+    });
+    if (!user) return;
+
+    user.point = (Number(user.point) || 0) + points;
+    await repo.save(user);
   }
 
   async findOneByPhone(phone: string) {
