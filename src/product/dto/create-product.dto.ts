@@ -4,7 +4,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsNumber,
-  IsBoolean,
   IsString,
   IsInt,
 } from 'class-validator';
@@ -49,10 +48,10 @@ export class CreateProductDto {
   @IsInt()
   categoryId: number;
 
- @ApiProperty({ example: true, description: 'San pham hot' })
+  @ApiProperty({ example: true, description: 'San pham hot' })
   @IsOptional()
-  @IsBoolean({ message: 'Phải là boolean' })
+  @Type(() => Number)
+  @IsNumber({},{ message: 'isFeatured Phải là một số' })
   isFeatured?: number;
-
 
 }
