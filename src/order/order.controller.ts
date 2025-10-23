@@ -60,11 +60,11 @@ export class OrderController {
       async () => {
         if(!file) throw new BadRequestException('Vui lòng gửi hình ảnh chuyển khoản') 
         const fileName = file.path;
-        await this.orderService.createOrderImage(fileName, createDto);
+        const orderImage = await this.orderService.createOrderImage(fileName, createDto);
 
         return ApiCustomResponse.success(
           HttpStatus.OK,
-          null,
+          orderImage,
           'Gửi thành công hình ảnh chuyển khoản',
         );
       },
