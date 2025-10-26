@@ -1,8 +1,12 @@
-import { BaseEntityDto } from 'src/common/entities/base.entity';
-import { Column, Entity } from 'typeorm';
+import {
+  BaseEntityDto,
+  BaseEntityDtoWithSlug,
+} from 'src/common/entities/base.entity';
+import { slugify } from 'src/common/utils/slug.util';
+import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 
 @Entity()
-export class Admin extends BaseEntityDto {
+export class Admin extends BaseEntityDtoWithSlug {
   @Column({ nullable: false })
   name: string;
 
@@ -17,4 +21,12 @@ export class Admin extends BaseEntityDto {
 
   @Column({ nullable: false })
   password: string;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  generateSlug() {
+    if (this.name) {
+      this.slug = slugify(this.name);
+    }
+  }
 }
