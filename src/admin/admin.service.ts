@@ -10,6 +10,7 @@ import { buildPaginationMeta } from 'src/common/utils/pagination.util';
 import { plainToInstance } from 'class-transformer';
 import { AdminDto } from './dto/admin.dto';
 import { UpdateStatusDto } from './dto/update-status-admin.dto';
+import { hashPassword } from 'src/common/utils/password.util';
 
 @Injectable()
 export class AdminService {
@@ -21,12 +22,16 @@ export class AdminService {
     return this.adminRepo.findOne({ where: { phone } });
   }
 
-  create(createDto: CreateAdminDto) {
-    return this.adminRepo.save(createDto);
+  async create(createDto: CreateAdminDto) {
+    const hash = await hashPassword(createDto.password)
+    const createAdmin = this.adminRepo.create({...createDto,password:hash})
+    return this.adminRepo.save(createAdmin);
   }
 
-  update(id: number, updateDto: UpdateAdminDto) {
-    return this.adminRepo.save({ id: id, ...updateDto });
+  async update(id: number, updateDto: UpdateAdminDto) {
+    const createAdmin = await this.adminRepo.findOneByOrFail({id})
+    const saveAdmin = await this.adminRepo.merge(createAdmin,updateDto)
+    return this.adminRepo.save(saveAdmin);
   }
 
   async findOne(id: number) {
@@ -88,4 +93,9 @@ export class AdminService {
     const {isActive} = dataUpdate
     return this.adminRepo.update(id,{isActive})
   }
+
+  // updatePassword (id:number,dataUpdate : UpdateStatusDto) {
+  //   const {isActive} = dataUpdate
+  //   return this.adminRepo.update(id,{isActive})
+  // }
 }

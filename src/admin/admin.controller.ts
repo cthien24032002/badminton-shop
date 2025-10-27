@@ -8,6 +8,7 @@ import {
   Delete,
   HttpStatus,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -23,11 +24,11 @@ export class AdminController {
   @Post()
   async create(@Body() createAdminDto: CreateAdminDto) {
     const admin = await this.adminService.create(createAdminDto);
-    return handlerApi(admin, HttpStatus.OK, 'Lấy danh sách Admin thành công');
+    return handlerApi(admin, HttpStatus.OK, 'Tạo Admin thành công');
   }
 
   @Get()
-  async findAll(query: QueryAllAdminDto) {
+  async findAll(@Query() query: QueryAllAdminDto) {
     const admins = await this.adminService.findAll(query);
     return handlerApiFind(
       admins,

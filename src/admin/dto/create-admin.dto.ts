@@ -8,7 +8,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { slugify } from 'src/common/utils/slug.util';
+
 
 export class CreateAdminDto {
   @ApiProperty({
@@ -48,7 +48,6 @@ export class CreateAdminDto {
     description: 'Mật khẩu của admin (tối thiểu 6 ký tự)',
     example: 'StrongPass123!',
   })
-  @Transform(({ value }) => slugify(value))
   @IsString()
   @MinLength(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
   password: string;
