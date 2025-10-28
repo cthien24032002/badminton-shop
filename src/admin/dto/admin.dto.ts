@@ -1,6 +1,7 @@
+import { BaseDtoWithSlug } from './../../common/dto/base.dto';
 import { Expose } from "class-transformer";
 
-export class AdminDto {
+export class AdminDto extends BaseDtoWithSlug {
     @Expose()
     name:string
     @Expose()

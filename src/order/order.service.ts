@@ -97,7 +97,6 @@ export class OrderService {
           this.orderItemService.create(itemDto, createdOrder.id, manager),
         ),
       );
-
       return createdOrder;
     });
   }
