@@ -11,6 +11,7 @@ import { plainToInstance } from 'class-transformer';
 import { AdminDto } from './dto/admin.dto';
 import { UpdateStatusDto } from './dto/update-status-admin.dto';
 import { hashPassword } from 'src/common/utils/password.util';
+import { UpdatePasswordAdminDto } from './dto/update-password-admin.dto';
 
 @Injectable()
 export class AdminService {
@@ -23,14 +24,14 @@ export class AdminService {
   }
 
   async create(createDto: CreateAdminDto) {
-    const hash = await hashPassword(createDto.password)
-    const createAdmin = this.adminRepo.create({...createDto,password:hash})
+    const hash = await hashPassword(createDto.password);
+    const createAdmin = this.adminRepo.create({ ...createDto, password: hash });
     return this.adminRepo.save(createAdmin);
   }
 
   async update(id: number, updateDto: UpdateAdminDto) {
-    const createAdmin = await this.adminRepo.findOneByOrFail({id})
-    const saveAdmin = await this.adminRepo.merge(createAdmin,updateDto)
+    const createAdmin = await this.adminRepo.findOneByOrFail({ id });
+    const saveAdmin = await this.adminRepo.merge(createAdmin, updateDto);
     return this.adminRepo.save(saveAdmin);
   }
 
@@ -89,13 +90,14 @@ export class AdminService {
     return { dataResult, pagination };
   }
 
-  updateStatus (id:number,dataUpdate : UpdateStatusDto) {
-    const {isActive} = dataUpdate
-    return this.adminRepo.update(id,{isActive})
+  updateStatus(id: number, dataUpdate: UpdateStatusDto) {
+    const { isActive } = dataUpdate;
+    return this.adminRepo.update(id, { isActive });
   }
 
-  // updatePassword (id:number,dataUpdate : UpdateStatusDto) {
-  //   const {isActive} = dataUpdate
-  //   return this.adminRepo.update(id,{isActive})
-  // }
+  async updatePassword(id: number, dataUpdate: UpdatePasswordAdminDto) {
+    const { password } = dataUpdate;
+    const hash = await hashPassword(password);
+    return this.adminRepo.update(id, { password: hash });
+  }
 }

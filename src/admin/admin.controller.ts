@@ -16,6 +16,7 @@ import { UpdateAdminDto } from './dto/update-admin.dto';
 import { QueryAllAdminDto } from './dto/find-all-admin.dto';
 import { handlerApi, handlerApiFind } from 'src/common/utils/response-api';
 import { UpdateStatusDto } from './dto/update-status-admin.dto';
+import { UpdatePasswordAdminDto } from './dto/update-password-admin.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -49,13 +50,21 @@ export class AdminController {
     @Body() updateAdminDto: UpdateAdminDto,
   ) {
     const admin = this.adminService.update(+id, updateAdminDto);
-    return handlerApi(admin, HttpStatus.NO_CONTENT, 'Sửa Admin thành công');
+    return handlerApi(admin, HttpStatus.OK, 'Sửa Admin thành công');
+  }
+
+  @Patch(':id')
+  async updatePassword(@Param('id') id: string, @Body() updateAdminDto: UpdatePasswordAdminDto){
+    const admin = await this.adminService.updatePassword(+id, updateAdminDto);
+    return handlerApi(admin, HttpStatus.OK, 'Sửa mật khẩu Admin thành công');
   }
 
   @Delete('/active/:id')
   async remove(@Param('id') id: string,@Body() dataUpdate : UpdateStatusDto) {
     const update = await this.adminService.updateStatus(+id,dataUpdate);
     if(!update.affected)  throw new BadRequestException('Không thể chỉnh sửa trạng thái admin')
-    return handlerApi(null,HttpStatus.NO_CONTENT,'Chỉnh sửa trạng thái admin thành công')
+    return handlerApi(null,HttpStatus.OK,'Chỉnh sửa trạng thái admin thành công')
   }
+
+  
 }
