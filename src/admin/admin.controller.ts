@@ -9,6 +9,7 @@ import {
   HttpStatus,
   BadRequestException,
   Query,
+  HttpCode,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -23,12 +24,14 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Post()
+  @HttpCode(HttpStatus.OK)
   async create(@Body() createAdminDto: CreateAdminDto) {
     const admin = await this.adminService.create(createAdminDto);
     return handlerApi(admin, HttpStatus.OK, 'Tạo Admin thành công');
   }
 
   @Get()
+  @HttpCode(HttpStatus.OK)
   async findAll(@Query() query: QueryAllAdminDto) {
     const admins = await this.adminService.findAll(query);
     return handlerApiFind(
@@ -39,12 +42,15 @@ export class AdminController {
   }
 
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   async findOne(@Param('id') id: string) {
     const admin = await this.adminService.findOne(+id);
     return handlerApi(admin, HttpStatus.OK, 'Lấy chi tiết Admin thành công');
   }
 
   @Patch(':id')
+  @HttpCode(HttpStatus.OK)
+
   async update(
     @Param('id') id: string,
     @Body() updateAdminDto: UpdateAdminDto,
@@ -53,12 +59,14 @@ export class AdminController {
     return handlerApi(admin, HttpStatus.OK, 'Sửa Admin thành công');
   }
 
+  @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async updatePassword(@Param('id') id: string, @Body() updateAdminDto: UpdatePasswordAdminDto){
     const admin = await this.adminService.updatePassword(+id, updateAdminDto);
     return handlerApi(admin, HttpStatus.OK, 'Sửa mật khẩu Admin thành công');
   }
 
+  @HttpCode(HttpStatus.OK)
   @Delete('/active/:id')
   async remove(@Param('id') id: string,@Body() dataUpdate : UpdateStatusDto) {
     const update = await this.adminService.updateStatus(+id,dataUpdate);
