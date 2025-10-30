@@ -66,5 +66,4 @@ export class AdminController {
     return handlerApi(null,HttpStatus.OK,'Chỉnh sửa trạng thái admin thành công')
   }
 
-  
 }
