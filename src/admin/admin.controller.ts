@@ -10,6 +10,7 @@ import {
   BadRequestException,
   Query,
   HttpCode,
+  Header,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -32,6 +33,7 @@ export class AdminController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @Header('Cache-Control', 'no-store')
   async findAll(@Query() query: QueryAllAdminDto) {
     const admins = await this.adminService.findAll(query);
     return handlerApiFind(
