@@ -18,6 +18,7 @@ import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ImagesModule } from './images/images.module';
 import { CustomerRequestModule } from './customer-request/customer-request.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { CustomerRequestModule } from './customer-request/customer-request.modul
     BannersModule,
     ImagesModule,
     CustomerRequestModule,
+    StatsModule,
     // SeedModule
   ],
   controllers: [AppController],

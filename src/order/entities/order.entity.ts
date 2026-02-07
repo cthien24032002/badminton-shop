@@ -35,7 +35,7 @@ export class Order extends BaseEntityDto {
   @Column({ type: 'nvarchar', nullable: false })
   name: string;
 
-  @Column({type:'varchar',nullable:true})
+  @Column({ type: 'varchar', nullable: true })
   imageOrder: string | null;
 
   @Column({ type: 'nvarchar', nullable: false })
@@ -48,4 +48,7 @@ export class Order extends BaseEntityDto {
     eager: true,
   })
   orderItems: OrderItem[];
+
+  @Column({ type: 'int', default: 0 })
+  earnedPoints: number;
 }

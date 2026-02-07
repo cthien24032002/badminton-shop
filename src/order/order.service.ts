@@ -112,6 +112,7 @@ export class OrderService {
       skip: (page - 1) * pageSize,
       take: pageSize,
       where,
+      order: { createdAt: 'DESC' },
     });
 
     // const dataResult = plainToInstance(OrderDto, orders, {
@@ -169,6 +170,7 @@ export class OrderService {
       skip: (page - 1) * pageSize,
       take: pageSize,
       where,
+      order: { createdAt: 'DESC' },
     });
 
     const pagination = buildPaginationMeta(
@@ -207,11 +209,14 @@ export class OrderService {
     updateStatusDto: UpdateStatusOrderDto,
   ): Promise<Order> {
     return await this.orderRepo.manager.transaction(async (manager) => {
-      const order = await manager.findOneOrFail(Order, {
-        where: { id },
-        relations: ['orderItems', 'orderItems.product'], // cần load product để cập nhật stock
-        lock: { mode: 'pessimistic_write' },
-      });
+      const order = await manager
+        .getRepository(Order)
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.orderItems', 'orderItems')
+        .leftJoinAndSelect('orderItems.product', 'product')
+        .where('order.id = :id', { id })
+        .setLock('pessimistic_write')
+        .getOneOrFail();
 
       // Nếu chuyển sang COMPLETED thì cộng điểm thưởng
       if (
@@ -225,6 +230,8 @@ export class OrderService {
           points,
           manager,
         );
+
+        order.earnedPoints = points;
       }
 
       // Nếu chuyển sang CANCELLED thì trả lại stock
@@ -232,21 +239,22 @@ export class OrderService {
         updateStatusDto.status === OrderStatus.CANCELLED &&
         order.status !== OrderStatus.CANCELLED
       ) {
-        await Promise.all(
-          order.orderItems.map(async (item) => {
-            if (!item.product) return;
+        if (order.orderItems) {
+          for (const item of order.orderItems) {
+            // Kiểm tra nếu có product relation được load
+            if (item.product) {
+              const product = await manager.findOne(Product, {
+                where: { id: item.product.id },
+                lock: { mode: 'pessimistic_write' },
+              });
 
-            const product = await manager.findOne(Product, {
-              where: { id: item.product.id },
-              lock: { mode: 'pessimistic_write' },
-            });
-
-            if (product) {
-              const stock = (product.stock ?? 0) + item.quantity;
-              await manager.save({ id: product.id, stock });
+              if (product) {
+                product.stock = (Number(product.stock) || 0) + item.quantity;
+                await manager.save(Product, product);
+              }
             }
-          }),
-        );
+          }
+        }
       }
 
       order.status = updateStatusDto.status;
@@ -255,9 +263,9 @@ export class OrderService {
   }
 
   async findTotal(orderStatus: OrderStatus) {
-    // Tìm tất cả Order, kèm OrderItems
     const orders = await this.orderRepo.find({
       where: { status: orderStatus },
+      order: { createdAt: 'DESC' },
     });
     let totalAmount = 0;
     // Tính totalAmount cho mỗi Order
