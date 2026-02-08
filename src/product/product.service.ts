@@ -100,6 +100,10 @@ export class ProductsService {
       skip: (page - 1) * pageSize,
       take: pageSize,
       withDeleted: false,
+      order: {
+        stock: 'DESC',
+        createdAt: 'DESC',
+      },
     });
 
     const dataResult = plainToInstance(ProductDto, products, {
